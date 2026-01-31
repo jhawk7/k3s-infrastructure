@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: clean-dishwasher
+  namespace: cron2
+spec:
+  schedule: "0 9 6 */3 *"  # Run every quater on the 6th day at 9 ET; m h dom mon dow
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: clean-dishwasher
+            image: jhawk7/smtp-alert:latest
+            imagePullPolicy: IfNotPresent
+            envFrom:
+            - secretRef:
+                name: smtp-cron-secret
+            - secretRef:
+                name: clean-dishwasher-secret
+          restartPolicy: OnFailure

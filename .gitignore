@@ -1,0 +1,19 @@
+#all env files
+*.env
+*.tfvars
+
+#rendered manifests
+rendered.yaml
+
+#state files
+*.tfstate
+*.tfstate.backup
+
+#plans
+outplans/
+
+#terraform
+.terraform/
+
+#overlays
+manifests/overlays/*.yaml

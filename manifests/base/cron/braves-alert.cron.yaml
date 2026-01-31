@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cron2
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: braves-alert
+  namespace: cron2
+spec:
+  schedule: "0 9 * * *"  # Run daily at 9 ET
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: braves-alert
+            image: jhawk7/braves-alert:latest
+            imagePullPolicy: Always
+            envFrom:
+            - secretRef:
+                name: braves-alert-secret
+            - secretRef:
+                name: smtp-cron-secret
+          restartPolicy: OnFailure
