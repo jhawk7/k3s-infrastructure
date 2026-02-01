@@ -2,8 +2,9 @@ locals {
   overlays_dir = "${path.root}/manifests/overlays"
   base_dir = "${path.root}/manifests/base"
   kustomize_fragments = [
+    module.smb-storage.kustomization_fragment,
     module.counter-backend.kustomization_fragment,
-    module.cron.kustomization_fragment
+    module.cron.kustomization_fragment,
   ]
 }
 
@@ -23,8 +24,15 @@ resource "null_resource" "create_overlays_dir" {
   }
 }
 
-module "counter-backend" {
+module "smb-storage" {
   depends_on = [ null_resource.create_overlays_dir ]
+  source = "./modules/smb-storage"
+  smb_source = var.smb_source
+  overlays_dir = local.overlays_dir
+}
+
+module "counter-backend" {
+  depends_on = [ null_resource.create_overlays_dir, module.smb-storage ]
   source = "./modules/counter-backend"
   external_ip = var.counter_producer_external_ip
   overlays_dir = local.overlays_dir
