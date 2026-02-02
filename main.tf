@@ -2,6 +2,7 @@ locals {
   overlays_dir = "${path.root}/manifests/overlays"
   base_dir = "${path.root}/manifests/base"
   kustomize_fragments = [
+    module.metallb.kustomization_fragment,
     module.smb-storage.kustomization_fragment,
     module.counter-backend.kustomization_fragment,
     module.cron.kustomization_fragment,
@@ -22,6 +23,13 @@ resource "null_resource" "create_overlays_dir" {
   provisioner "local-exec" {
     command = "mkdir -p ${local.overlays_dir}"
   }
+}
+
+module "metallb" {
+  depends_on = [ null_resource.create_overlays_dir ]
+  source = "./modules/metallb"
+  metallb_ip_pool = var.metallb_ip_pool
+  overlays_dir = local.overlays_dir
 }
 
 module "smb-storage" {
@@ -46,6 +54,8 @@ module "cron" {
 
 resource "local_file" "kustomization" {
   depends_on = [ 
+    module.metallb,
+    module.smb-storage,
     module.counter-backend, 
     module.cron
   ]

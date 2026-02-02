@@ -1,15 +1,9 @@
-resource "kubernetes_namespace_v1" "smb_ns" {
-  metadata {
-    name = "smb-csi-provisioner"
-  }
-}
-
 resource "helm_release" "csi_driver_smb" {
   depends_on = [ kubernetes_namespace_v1.smb_ns ]
   name       = "csi-driver-smb"
   repository = "https://raw.githubusercontent.com/kubernetes-csi/csi-driver-smb/master/charts"
   chart      = "csi-driver-smb"
-  namespace  = kubernetes_namespace_v1.smb_ns.metadata[0].name
+  namespace  = "smb-csi-provisioner"
 }
 
 resource "local_file" "smb_storage_patch" {
