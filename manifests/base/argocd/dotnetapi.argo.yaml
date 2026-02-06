@@ -16,7 +16,7 @@ metadata:
     # Optionally specify the platform (defaults to linux/amd64)
     argocd-image-updater.argoproj.io/dotnetapi.platform: linux/arm64
     # Optional: Force update check interval (default is 2 minutes)
-    # argocd-image-updater.argoproj.io/dotnetapi.force-update: "true"
+    argocd-image-updater.argoproj.io/dotnetapi.force-update: "true"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
