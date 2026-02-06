@@ -1,0 +1,50 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dotnetapi
+  namespace: argocd
+  annotations:
+    # Enable argocd-image-updater for this application
+    argocd-image-updater.argoproj.io/image-list: dotnetapi=jhawk7/dotnetapi
+    # Use digest update strategy to track image by digest
+    argocd-image-updater.argoproj.io/dotnetapi.update-strategy: digest
+    # Allow tracking of 'latest' tag (or specify a pattern like 'regexp:^v.*')
+    argocd-image-updater.argoproj.io/dotnetapi.allow-tags: latest
+    # Write back method: 'argocd' stores the override in ArgoCD app spec (not git)
+    argocd-image-updater.argoproj.io/write-back-method: argocd
+    # Optionally specify the platform (defaults to linux/amd64)
+    argocd-image-updater.argoproj.io/dotnetapi.platform: linux/arm64
+    # Optional: Force update check interval (default is 2 minutes)
+    # argocd-image-updater.argoproj.io/dotnetapi.force-update: "true"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/jhawk7/k3s-infrastructure.git
+    targetRevision: main
+    path: manifests/base/apps/dotnetAPI
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: apps
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - Validate=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  revisionHistoryLimit: 10
