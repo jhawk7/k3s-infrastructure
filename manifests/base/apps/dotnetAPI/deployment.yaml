@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: dotnetapi
-        image: jhawk7/dotnetapi:latest@sha256:digest
+        image: jhawk7/dotnetapi:latest
         ports:
         - containerPort: 5256
           protocol: TCP
