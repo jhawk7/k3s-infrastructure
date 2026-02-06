@@ -6,7 +6,7 @@ metadata:
   namespace: argocd
   annotations:
     # Enable argocd-image-updater for this application
-    argocd-image-updater.argoproj.io/image-list: dotnetapi=jhawk7/dotnetapi:latest
+    argocd-image-updater.argoproj.io/image-list: dotnetapi=jhawk7/dotnetapi
     # Use digest update strategy to track image by digest
     argocd-image-updater.argoproj.io/dotnetapi.update-strategy: digest
     # Allow tracking of 'latest' tag (or specify a pattern like 'regexp:^v.*')
