@@ -10,7 +10,7 @@ metadata:
     # Use digest update strategy to track image by digest
     argocd-image-updater.argoproj.io/dotnetapi.update-strategy: digest
     # Allow tracking of 'latest' tag (or specify a pattern like 'regexp:^v.*')
-    argocd-image-updater.argoproj.io/dotnetapi.allow-tags: latest
+    argocd-image-updater.argoproj.io/dotnetapi.allow-tags: .*
     # Write back method: 'argocd' stores the override in ArgoCD app spec (not git)
     argocd-image-updater.argoproj.io/write-back-method: argocd
     # Optionally specify the platform (defaults to linux/amd64)
