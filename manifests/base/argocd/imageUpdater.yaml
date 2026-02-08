@@ -1,0 +1,10 @@
+apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: image-updater
+  namespace: argocd
+spec:
+  namespace: argocd  # Target namespace where Argo CD Applications are located
+  applicationRefs:
+    - namePattern: "*"  # Select applications matching this pattern
+      useAnnotations: true  # Use annotations on Argo CD Applications for configuration
