@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: speedtester-svc
+  namespace: speedtest
+spec:
+  selector:
+    app: speedtest-exporter
+  type: ClusterIP
+  clusterIP: 10.43.28.41
+  ports:
+  - name: http
+    port: 9798
+    targetPort: 9798
+    #nodePort: 30036 #specifies the port to open on all nodes; will be publicly exposed; can only use 30000-32767; maybe let k3s choose
+    protocol: TCP

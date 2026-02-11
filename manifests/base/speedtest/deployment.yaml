@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: speedtest
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: speedtest-exporter
+  namespace: speedtest
+spec:
+  selector:
+    matchLabels:
+      app: speedtest-exporter 
+  template:
+    metadata:
+      labels:
+        app: speedtest-exporter
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: node7
+      containers:
+      - name: speedtest-exporter
+        image: miguelndecarvalho/speedtest-exporter
+        ports:
+          - containerPort: 9798
+        env:
+          - name: SPEEDTEST_SERVER
+            value: "55149" #AL
+          - name: SPEEDTEST_PORT
+            value: "9798"
