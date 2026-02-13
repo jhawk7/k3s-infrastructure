@@ -11,17 +11,6 @@ spec:
   selector:
     matchLabels:
       app: dotnetapi
-  strategy:
-    canary:
-      steps:
-      - setWeight: 20
-      - pause: {}
-      - setWeight: 40
-      - pause: {}
-      - setWeight: 60
-      - pause: {}
-      - setWeight: 80
-      - pause: {}
   template:
     metadata:
       labels:
