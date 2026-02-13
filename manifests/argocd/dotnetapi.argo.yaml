@@ -35,6 +35,23 @@ spec:
             - op: replace
               path: /spec/template/spec/containers/0/resources/requests/memory
               value: "100Mi"
+        - target:
+            kind: Rollout
+            name: dotnetapi
+          patch: |-
+            - op: replace
+              path: /spec/strategy
+              value: {
+                steps:
+                - setWeight: 20
+                - pause: {}
+                - setWeight: 40
+                - pause: {}
+                - setWeight: 60
+                - pause: {}
+                - setWeight: 80
+                - pause: {}
+              }
 
   destination:
     server: https://kubernetes.default.svc
