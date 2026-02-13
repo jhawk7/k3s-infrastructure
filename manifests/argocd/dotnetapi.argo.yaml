@@ -26,6 +26,15 @@ spec:
     repoURL: https://github.com/jhawk7/k3s-infrastructure.git
     targetRevision: main
     path: manifests/base/apps/dotnetAPI
+    kustomize:
+      patches:
+        - target:
+            kind: Rollout
+            name: dotnetapi
+          patch: |-
+            - op: replace
+              path: /spec/template/spec/containers/0/resources/requests/memory
+              value: "100Mi"
 
   destination:
     server: https://kubernetes.default.svc
