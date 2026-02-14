@@ -9,6 +9,8 @@ spec:
     spec:
       template:
         spec:
+          nodeSelector:
+            kubernetes.io/arch: arm64
           containers:
           - name: clean-dishwasher
             image: jhawk7/smtp-alert:latest

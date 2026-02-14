@@ -14,6 +14,8 @@ spec:
     spec:
       template:
         spec:
+          nodeSelector:
+            kubernetes.io/arch: arm64
           containers:
           - name: braves-alert
             image: jhawk7/braves-alert:latest
