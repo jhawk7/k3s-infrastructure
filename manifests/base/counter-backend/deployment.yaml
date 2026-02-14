@@ -18,7 +18,7 @@ spec:
         app: go-counter-backend
     spec:
       nodeSelector:
-        type: agent
+        kubernetes.io/arch: arm64
       containers:
       - name: redis
         image: redis:alpine
