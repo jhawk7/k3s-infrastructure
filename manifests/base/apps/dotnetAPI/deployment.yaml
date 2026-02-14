@@ -18,6 +18,8 @@ spec:
       labels:
         app: dotnetapi
     spec:
+      nodeSelector:
+        kubernetes.io/arch: arm64
       containers:
       - name: dotnetapi
         image: jhawk7/dotnetapi@sha256:6a31196ce6013d96ad8a0aa16483da40263b00e0048840de8d506872c4c83856

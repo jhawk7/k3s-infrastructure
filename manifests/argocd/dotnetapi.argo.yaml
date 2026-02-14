@@ -41,17 +41,17 @@ spec:
           patch: |-
             - op: replace
               path: /spec/strategy
-              value: {
-                steps:
-                - setWeight: 20
-                - pause: {}
-                - setWeight: 40
-                - pause: {}
-                - setWeight: 60
-                - pause: {}
-                - setWeight: 80
-                - pause: {}
-              }
+              value:
+                canary:
+                  steps:
+                  - setWeight: 20
+                  - pause: {duration: 10}
+                  - setWeight: 40
+                  - pause: {duration: 10}
+                  - setWeight: 60
+                  - pause: {duration: 10}
+                  - setWeight: 80
+                  - pause: {duration: 10}
 
   destination:
     server: https://kubernetes.default.svc
