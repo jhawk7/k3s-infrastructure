@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: clean-dishwasher
-  namespace: cron2
+  namespace: cron
 spec:
   schedule: "0 9 6 */3 *"  # Run every quater on the 6th day at 9 ET; m h dom mon dow
   jobTemplate:

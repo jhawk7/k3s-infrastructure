@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: cron2
+  name: cron
 ---
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: braves-alert
-  namespace: cron2
+  namespace: cron
 spec:
   schedule: "0 9 * * *"  # Run daily at 9 ET
   jobTemplate:
