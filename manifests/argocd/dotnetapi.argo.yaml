@@ -43,16 +43,8 @@ spec:
               path: /spec/strategy
               value:
                 canary:
-                  steps:
-                  - setWeight: 20
-                  - pause: {duration: 10}
-                  - setWeight: 40
-                  - pause: {duration: 10}
-                  - setWeight: 60
-                  - pause: {duration: 10}
-                  - setWeight: 80
-                  - pause: {duration: 10}
-
+                  maxSurge: 1
+                  maxUnavailable: 0
   destination:
     server: https://kubernetes.default.svc
     namespace: apps
