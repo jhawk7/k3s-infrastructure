@@ -1,7 +1,24 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: dotnetapi
+  name: dotnetapi-svc
+  namespace: apps
+  labels:
+    app: dotnetapi
+spec:
+  type: LoadBalancer
+  selector:
+    app: dotnetapi
+  ports:
+  - port: 5256
+    targetPort: 5256
+    protocol: TCP
+    name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: preview-dotnetapi-svc
   namespace: apps
   labels:
     app: dotnetapi
