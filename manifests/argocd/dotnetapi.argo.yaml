@@ -50,11 +50,12 @@ spec:
                   # This allows the preview stack to be reachable without serving production traffic.
                   # This field is optional.
                   previewService: preview-dotnetapi-svc
-                  # autoPromotionEnabled disables automated promotion of the new stack by pausing the rollout
+                  # autoPromotionEnabled, when false, disables automated promotion of the new stack by pausing the rollout
                   # immediately before the promotion. If omitted, the default behavior is to promote the new
                   # stack as soon as the ReplicaSet are completely ready/available.
                   # Rollouts can be resumed using: `kubectl argo rollouts promote ROLLOUT`
-                  autoPromotionEnabled: false
+                  autoPromotionEnabled: true
+                  autoPromotionSeconds: 180
   destination:
     server: https://kubernetes.default.svc
     namespace: apps
