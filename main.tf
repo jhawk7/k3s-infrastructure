@@ -52,12 +52,18 @@ module "cron" {
   overlays_dir = local.overlays_dir
 }
 
+module "mqtt" {
+  depends_on = [ null_resource.create_overlays_dir ]
+  source = "./modules/mqtt"
+}
+
 resource "local_file" "kustomization" {
   depends_on = [ 
     module.metallb,
     module.smb-storage,
     module.counter-backend, 
-    module.cron
+    module.cron,
+    module.mqtt
   ]
 
   filename = "${local.overlays_dir}/kustomization.yaml"

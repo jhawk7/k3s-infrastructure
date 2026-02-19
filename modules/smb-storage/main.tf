@@ -1,5 +1,4 @@
 resource "helm_release" "csi_driver_smb" {
-  depends_on = [ kubernetes_namespace_v1.smb_ns ]
   name       = "csi-driver-smb"
   repository = "https://raw.githubusercontent.com/kubernetes-csi/csi-driver-smb/master/charts"
   chart      = "csi-driver-smb"

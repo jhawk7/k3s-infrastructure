@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mqtt-sub-client
+  namespace: mqtt
+spec:
+  selector:
+    matchLabels:
+      app: mqtt-sub-client
+  template:
+    metadata:
+      labels:
+        app: mqtt-sub-client
+    spec:
+      nodeSelector:
+        type: agent
+      containers:
+      - name: redis
+        image: redis:alpine
+        command: ["/bin/sh", "-c"]
+        args:
+          - redis-server --requirepass "$${REDIS_PASS:?REDIS_PASS not set}" --save 60 1
+        envFrom:
+        - secretRef:
+            name: mqtt-sub-client-redis-env
+        volumeMounts:
+        - name: mqtt-sub-client-redis-pvc
+          mountPath: /data
+        ports:
+        - containerPort: 6379
+      - name: mqtt-sub-client
+        image: jhawk7/mqtt-sub-client:latest
+        imagePullPolicy: Always
+        envFrom:
+        - secretRef:
+            name: mqtt-sub-client-secret
+        - secretRef:
+            name: mqtt-sub-client-redis-env
+  volumeClaimTemplates:
+  - metadata:
+      name: mqtt-sub-client-redis-pvc
+      namespace: mqtt
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "smb"
+      resources:
+        requests:
+          storage: 100Mi
