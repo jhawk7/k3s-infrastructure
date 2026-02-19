@@ -1,0 +1,50 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mqtt-sub-client
+  namespace: argocd
+  annotations:
+    # Enable argocd-image-updater for this application
+    argocd-image-updater.argoproj.io/image-list: mqtt-sub-client=jhawk7/mqtt-sub-client:latest
+    # Use digest update strategy to track image by digest
+    argocd-image-updater.argoproj.io/mqtt-sub-client.update-strategy: digest
+    # Allow tracking of 'latest' tag (or specify a pattern like 'regexp:^v.*')
+    #argocd-image-updater.argoproj.io/mqtt-sub-client.allow-tags: .*
+    # Write back method: 'argocd' stores the override in ArgoCD app spec (not git)
+    argocd-image-updater.argoproj.io/write-back-method: argocd
+    # Optionally specify the platform (defaults to linux/amd64)
+    argocd-image-updater.argoproj.io/mqtt-sub-client.platforms: linux/arm64
+    # Optional: Force update check interval (default is 2 minutes)
+    argocd-image-updater.argoproj.io/mqtt-sub-client.force-update: "true"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/jhawk7/k3s-infrastructure.git
+    targetRevision: main
+    path: manifests/base/apps/mqtt-sub
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: mqtt
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - Validate=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  revisionHistoryLimit: 10
