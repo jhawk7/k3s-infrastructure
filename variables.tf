@@ -12,3 +12,8 @@ variable "metallb_ip_pool" {
   type      = string
   sensitive = true
 }
+
+variable "mqtt_external_ip" {
+  type      = string
+  sensitive = true  
+}

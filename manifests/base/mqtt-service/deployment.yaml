@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mqtt
+  namespace: mqtt
+spec:
+  selector:
+    matchLabels:
+      app: mqtt 
+  template:
+    metadata:
+      labels:
+        app: mqtt
+    spec:
+      nodeSelector:
+        type: agent
+        kubernetes.io/hostname: node1
+      volumes:
+      - name: mqtt-secret-volume
+        secret:
+          secretName: mqtt-init-secret-files
+          defaultMode: 0700
+
+      initContainers:
+      - name: install
+        image: busybox
+        command:
+          - sh
+          - -c
+          - |
+            echo "Copying init files"
+            cp -r /secrets/* /mosquitto/config
+        volumeMounts:
+        - name: mqtt-pvc
+          mountPath: /mosquitto/config
+        - name: mqtt-secret-volume
+          mountPath: /secrets
+      containers:
+      - name: mqtt
+        image: eclipse-mosquitto:latest
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: mqtt-pvc
+          subPath: mqtt/data
+          mountPath: /mosquitto/data
+        - name: mqtt-pvc
+          subPath: mqtt/log
+          mountPath: /mosquitto/log
+        - name: mqtt-pvc
+          subPath: mqtt/config
+          mountPath: /mosquitto/config
+        ports:
+        - containerPort: 1883
+        - containerPort: 9001
+      - name: mqtt-web
+        image: emqx/mqttx-web:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+  volumeClaimTemplates:
+  - metadata:
+      name: mqtt-pvc
+      namespace: mqtt
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "smb"
+      resources:
+        requests:
+          storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mosquitto-exporter
+  namespace: mqtt
+spec:
+  selector:
+    matchLabels:
+      app: mosquitto-exporter 
+  template:
+    metadata:
+      labels:
+        app: mosquitto-exporter
+    spec:
+      nodeSelector:
+        type: agent
+        kubernetes.io/arch: arm64
+      containers:
+      - name: mosquitto-exporter
+        image: jhawk7/mosquitto-exporter:latest #using personal image for arm compatibility
+        imagePullPolicy: Always
+        envFrom:
+        - secretRef:
+            name: mosquitto-exporter-env
+        ports:
+        - containerPort: 9234

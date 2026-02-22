@@ -1,6 +1,7 @@
 #all env files
 *.env
 *.tfvars
+manifests/overlays/env_files/*
 
 #rendered manifests
 rendered.yaml

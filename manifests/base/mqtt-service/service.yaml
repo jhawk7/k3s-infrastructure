@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mqtt-service
+  namespace: mqtt
+spec:
+  selector:
+    app: mqtt
+  type: LoadBalancer
+  loadBalancerIP: LB_IP #patched via kustomize
+  ports:
+  - name: main
+    port: 1883
+    targetPort: 1883
+    protocol: TCP
+  - name: websocket
+    port: 9001
+    targetPort: 9001
+    protocol: TCP
+  - name: portal
+    port: 80
+    targetPort: 80
+    protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mosquitto-exporter-service
+  namespace: mqtt
+spec:
+  selector:
+    app: mosquitto-exporter
+  type: ClusterIP
+  ports:
+  - name: exporter
+    port: 9234
+    targetPort: 9234
+    protocol: TCP

@@ -6,6 +6,7 @@ locals {
     module.smb-storage.kustomization_fragment,
     module.counter-backend.kustomization_fragment,
     module.cron.kustomization_fragment,
+    module.mqtt.kustomization_fragment
   ]
 }
 
@@ -18,6 +19,10 @@ provider "helm" {
     config_path = "~/.kube/config"
   }
 }
+
+# module "resources" {
+#   source = "./modules/resources"
+# }
 
 resource "null_resource" "create_overlays_dir" {
   provisioner "local-exec" {
@@ -55,6 +60,8 @@ module "cron" {
 module "mqtt" {
   depends_on = [ null_resource.create_overlays_dir ]
   source = "./modules/mqtt"
+  external_ip = var.mqtt_external_ip
+  overlays_dir = local.overlays_dir
 }
 
 resource "local_file" "kustomization" {
