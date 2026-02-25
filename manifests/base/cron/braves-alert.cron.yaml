@@ -14,15 +14,17 @@ spec:
     spec:
       template:
         spec:
+          imagePullSecrets:
+            - name: cron-registry-credentials
           nodeSelector:
             kubernetes.io/arch: arm64
           containers:
           - name: braves-alert
             image: jhawk7/braves-alert:latest
-            imagePullPolicy: Always
+            imagePullPolicy: IfNotPresent
             envFrom:
             - secretRef:
-                name: braves-alert-secret
+                name: braves-alert-secret #generated via kustomize
             - secretRef:
-                name: smtp-cron-secret
+                name: smtp-cron-secret # generated via kustomize
           restartPolicy: OnFailure

@@ -22,6 +22,7 @@ spec:
       containers:
       - name: speedtest-exporter
         image: miguelndecarvalho/speedtest-exporter
+        imagePullPolicy: IfNotPresent
         ports:
           - containerPort: 9798
         env:

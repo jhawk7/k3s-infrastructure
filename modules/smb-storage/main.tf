@@ -1,3 +1,6 @@
+# smb storage for k3s sucks, it doesn't support chown, chmod, or fsGroup meaning initcontainers dont actually change permissions and can't initalize volumes properly
+# use nfs-csi instead
+
 resource "local_file" "smb_storage_patch" {
   content = yamlencode([
     {

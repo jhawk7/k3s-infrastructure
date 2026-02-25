@@ -1,3 +1,28 @@
+locals {
+  namespace = "go-counter"
+}
+
+# resource local_file "gocounter_dockerconfig_patch" {
+#   content = yamlencode([
+#     {
+#       op   = "replace"
+#       path = "/data/.dockerconfigjson"
+#       value = var.docker_config_b64
+#     },
+#     {
+#       op   = "replace"
+#       path = "/metadata/name"
+#       value = "${local.namespace}-registry-credentials"
+#     },
+#     {
+#       op   = "replace"
+#       path = "/metadata/namespace"
+#       value = "${local.namespace}"
+#     }
+#   ])
+#   filename = "${var.overlays_dir}/gocounter-dockerconfig.patch.yaml"
+# }
+
 resource "local_file" "counter_svc_patch" {
   content = yamlencode([
     {
@@ -46,6 +71,12 @@ output "kustomization_fragment" {
         namespace = "go-counter"
         envs = ["env_files/go-counter-producer.env"]
         type = "Opaque"
+      },
+      {
+        name = "${local.namespace}-registry-credentials",
+        namespace = local.namespace,
+        files = [".dockerconfigjson=env_files/.docker-config.json"],
+        type = "kubernetes.io/dockerconfigjson"
       }
     ]
   }

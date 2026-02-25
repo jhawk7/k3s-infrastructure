@@ -9,6 +9,8 @@ spec:
     spec:
       template:
         spec:
+          imagePullSecrets:
+            - name: cron-registry-credentials
           nodeSelector:
             kubernetes.io/arch: arm64
           containers:
@@ -17,7 +19,7 @@ spec:
             imagePullPolicy: IfNotPresent
             envFrom:
             - secretRef:
-                name: smtp-cron-secret
+                name: smtp-cron-secret # generated via kustomize
             - secretRef:
-                name: clean-dishwasher-secret
+                name: clean-dishwasher-secret # generated via kustomize
           restartPolicy: OnFailure

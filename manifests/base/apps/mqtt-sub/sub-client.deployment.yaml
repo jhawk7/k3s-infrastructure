@@ -15,7 +15,8 @@ spec:
       nodeSelector:
         type: agent
         kubernetes.io/arch: arm64
-
+      imagePullSecrets:
+      - name: mqtt-registry-credentials
       containers:
       - name: redis
         image: redis:alpine

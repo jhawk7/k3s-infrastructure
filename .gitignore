@@ -2,6 +2,7 @@
 *.env
 *.tfvars
 manifests/overlays/env_files/*
+.docker-config.json
 
 #rendered manifests
 rendered.yaml
