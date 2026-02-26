@@ -21,10 +21,6 @@ provider "helm" {
   }
 }
 
-# module "resources" {
-#   source = "./modules/resources"
-# }
-
 resource "null_resource" "create_overlays_dir" {
   provisioner "local-exec" {
     command = "mkdir -p ${local.overlays_dir}"
@@ -45,6 +41,12 @@ resource "null_resource" "create_overlays_dir" {
 #   overlays_dir = local.overlays_dir
 # }
 
+module "nfs-storage" {
+  depends_on = [ null_resource.create_overlays_dir ]
+  source = "./modules/nfs-storage"
+  nfs_server = var.nfs_server
+  overlays_dir = local.overlays_dir
+}
 module "counter-backend" {
   depends_on = [ null_resource.create_overlays_dir ]
   source = "./modules/counter-backend"
@@ -72,6 +74,7 @@ resource "local_file" "kustomization" {
   depends_on = [ 
     #module.metallb,
     #module.smb-storage,
+    module.nfs-storage,
     module.counter-backend, 
     module.cron,
     module.mqtt
