@@ -25,7 +25,7 @@ spec:
   source:
     repoURL: https://github.com/jhawk7/k3s-infrastructure.git
     targetRevision: main
-    path: manifests/base/apps/mqtt-sub
+    path: manifests/argo-apps/mqtt-sub
 
   destination:
     server: https://kubernetes.default.svc
