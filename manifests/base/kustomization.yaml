@@ -3,7 +3,7 @@ kind: Kustomization
 
 resources:
 #- metallb
-#- smb-storage
+#- storage
 - counter-backend
 - cron
 - speedtest

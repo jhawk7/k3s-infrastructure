@@ -8,6 +8,11 @@ variable "smb_source" {
   sensitive = true
 }
 
+variable "nfs_server" {
+  type = string
+  sensitive = true
+}
+
 variable "metallb_ip_pool" {
   type      = string
   sensitive = true

@@ -26,7 +26,10 @@ spec:
         fsGroup: 1883  # smb doesn't support chown or chmod for files; fsgroup will set group ownership of the mounted volume
       initContainers:
       - name: init-pvc
-        image: alpine # runs as root by default doesn't have user 1883 (user for mqtt), run as root and change permissions to allow mqtt to read/write
+        image: alpine # busybox runs as root by default doesn't have user 1883 (user for mqtt); opt1: run as root and change permissions to allow mqtt to read/write; opt2: use alpine with user 1883
+        securityContext:
+          runAsUser: 1883
+          runAsGroup: 1883
         imagePullPolicy: IfNotPresent
         command:
           - sh
@@ -69,7 +72,7 @@ spec:
       namespace: mqtt
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: "local-path" #using local path due to smb woes
+      storageClassName: "nfs"
       resources:
         requests:
           storage: 1Gi

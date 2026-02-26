@@ -2,21 +2,6 @@ locals {
   namespace = "mqtt"
 }
 
-// generate password file secret based on password.txt
-// generate configmap based on mosquitto.conf
-// create initialize container in yaml to mount files into config log data dirs
-
-# resource "kubernetes_secret" "mqtt_registry_credentials" {
-#   metadata {
-#     name      = "${local.namespace}-registry-credentials"
-#     namespace = local.namespace
-#   }
-#   data = {
-#     ".dockerconfigjson" = var.docker_config_b64
-#   }
-#   type = "kubernetes.io/dockerconfigjson"
-# }
-
 resource "local_file" "mqtt_svc_patch" {
   content = yamlencode([
     {
