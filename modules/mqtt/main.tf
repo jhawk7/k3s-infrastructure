@@ -39,9 +39,9 @@ output "kustomization_fragment" {
         type = "Opaque"
       },
       {
-        name = "mqtt-init-secret-files",
+        name = "mqtt-password",
         namespace = "mqtt",
-        files = ["env_files/mosquitto.conf", "env_files/mqtt-passwd.txt"],
+        files = ["env_files/mqtt-password.txt"],
         type = "Opaque"
       },
       {

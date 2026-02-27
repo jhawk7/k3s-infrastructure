@@ -3,6 +3,27 @@ kind: Namespace
 metadata:
   name: mqtt
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mqtt-config
+  namespace: mqtt
+data:
+  mosquitto.conf: |
+    # MQTT listener
+    listener 1883
+    protocol mqtt
+    # Websocket listener
+    listener 9001
+    protocol websockets
+    allow_anonymous false
+    password_file /mosquitto/config/password.txt
+    persistence true
+    autosave_interval 600
+    autosave_on_changes true
+    persistence_location /mosquitto/data/
+    log_dest file /mosquitto/log/mosquitto.log
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -21,41 +42,28 @@ spec:
       - name: mqtt-registry-credentials
       nodeSelector:
         type: agent
-        kubernetes.io/hostname: node1
-      initContainers:
-      - name: init-pvc
-        image: alpine # busybox runs as root by default doesn't have user 1883 (user for mqtt); opt1: run as root and change permissions to allow mqtt to read/write; opt2: use alpine with user 1883
-        securityContext:
-          runAsUser: 1883
-          runAsGroup: 1883
-        imagePullPolicy: IfNotPresent
-        command:
-          - sh
-          - -c
-          - |
-            echo "Copying init files"
-            mkdir -p /mosquitto/data
-            mkdir -p /mosquitto/log
-            mkdir -p /mosquitto/config
-            cp -rL /secrets/* /mosquitto/config
-            mv /mosquitto/config/mqtt-passwd.txt /mosquitto/config/passwd.txt
-        volumeMounts:
-        - name: mqtt-pvc
-          mountPath: /mosquitto
-        - name: mqtt-secret-volume
-          mountPath: /secrets
+      securityContext:
+        fsGroup: 1883  # Ensures group ownership for NFS/SMB volumes so user 1883 can access files
       volumes:
-      - name: mqtt-secret-volume
+      - name: mqtt-password
         secret:
-          secretName: mqtt-init-secret-files
-          defaultMode: 0777
+          secretName: mqtt-password
+      - name: mqtt-config
+        configMap:
+          name: mqtt-config
       containers:
       - name: mqtt
         image: eclipse-mosquitto:latest
         imagePullPolicy: IfNotPresent
         volumeMounts:
         - name: mqtt-pvc
-          mountPath: /mosquitto
+          mountPath: /mosquitto/data
+        - name: mqtt-password
+          mountPath: /mosquitto/config/password.txt
+          subPath: mqtt-password.txt
+        - name: mqtt-config
+          mountPath: /mosquitto/config/mosquitto.conf
+          subPath: mosquitto.conf
         ports:
         - containerPort: 1883
         - containerPort: 9001
