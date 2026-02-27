@@ -18,3 +18,18 @@ reclaimPolicy: Delete
 volumeBindingMode: Immediate
 mountOptions:
   - nfsvers=4.1
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-retain
+  annotations:
+    storageclass.kubernetes.io/is-default-class: true
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: <NFS_SERVER_IP> #patched via kustomize
+  share: /srv/nfs-storage
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+mountOptions:
+  - nfsvers=4.1

@@ -29,6 +29,13 @@ output "kustomization_fragment" {
           name = "nfs"
         }
         path = "nfs-storage.patch.yaml"
+      },
+      {
+        target = {
+          kind = "StorageClass"
+          name = "nfs-retain"
+        }
+        path = "nfs-storage.patch.yaml"
       }
     ]
   }
