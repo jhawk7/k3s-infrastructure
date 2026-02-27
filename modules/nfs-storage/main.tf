@@ -31,14 +31,5 @@ output "kustomization_fragment" {
         path = "nfs-storage.patch.yaml"
       }
     ]
-
-    secretGenerator = [
-      {
-        name = "nfs-secret"
-        namespace = "nfs-csi-provisioner"
-        envs = ["env_files/nfs-secret.env"]
-        type = "Opaque"
-      }
-    ]
   }
 }

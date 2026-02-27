@@ -5,6 +5,7 @@ locals {
   kustomize_fragments = [
     #module.metallb.kustomization_fragment,
     #module.smb-storage.kustomization_fragment,
+    module.nfs-storage.kustomization_fragment,
     module.counter-backend.kustomization_fragment,
     module.cron.kustomization_fragment,
     module.mqtt.kustomization_fragment
@@ -105,7 +106,7 @@ resource "null_resource" "render_kustomize" {
   ]
 
   provisioner "local-exec" {
-    command = "kubectl kustomize ${path.root}/manifests/overlays > ${path.root}/outplans/rendered.yaml"
+    command = "kubectl kustomize ${path.root}/manifests/overlays > ${path.root}/outplans/rendered.yaml && echo 'run `kubectl apply -f ${path.root}/outplans/rendered.yaml` to apply the rendered manifests'"
   }
 
   triggers = {

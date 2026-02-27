@@ -45,7 +45,7 @@ spec:
       namespace: mqtt
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: "smb"
+      storageClassName: "nfs"
       resources:
         requests:
           storage: 100Mi

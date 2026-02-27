@@ -22,8 +22,6 @@ spec:
       nodeSelector:
         type: agent
         kubernetes.io/hostname: node1
-      securityContext:
-        fsGroup: 1883  # smb doesn't support chown or chmod for files; fsgroup will set group ownership of the mounted volume
       initContainers:
       - name: init-pvc
         image: alpine # busybox runs as root by default doesn't have user 1883 (user for mqtt); opt1: run as root and change permissions to allow mqtt to read/write; opt2: use alpine with user 1883

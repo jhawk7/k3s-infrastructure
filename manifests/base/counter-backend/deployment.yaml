@@ -65,7 +65,7 @@ spec:
       namespace: go-counter
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: "smb"
+      storageClassName: "nfs"
       resources:
         requests:
           storage: 100Mi
