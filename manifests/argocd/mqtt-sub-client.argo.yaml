@@ -6,17 +6,17 @@ metadata:
   namespace: argocd
   annotations:
     # Enable argocd-image-updater for this application
-    argocd-image-updater.argoproj.io/image-list: mqtt-sub-client=jhawk7/mqtt-sub-client:latest
+    argocd-image-updater.argoproj.io/image-list: mqttclient=jhawk7/mqtt-sub-client:latest
     # Use digest update strategy to track image by digest
-    argocd-image-updater.argoproj.io/mqtt-sub-client.update-strategy: digest
+    argocd-image-updater.argoproj.io/mqttclient.update-strategy: digest
     # Allow tracking of 'latest' tag (or specify a pattern like 'regexp:^v.*')
     #argocd-image-updater.argoproj.io/mqtt-sub-client.allow-tags: .*
     # Write back method: 'argocd' stores the override in ArgoCD app spec (not git)
     argocd-image-updater.argoproj.io/write-back-method: argocd
     # Optionally specify the platform (defaults to linux/amd64)
-    argocd-image-updater.argoproj.io/mqtt-sub-client.platforms: linux/arm64
+    argocd-image-updater.argoproj.io/mqttclient.platforms: linux/arm64
     # Optional: Force update check interval (default is 2 minutes)
-    argocd-image-updater.argoproj.io/mqtt-sub-client.force-update: "true"
+    argocd-image-updater.argoproj.io/mqttclient.force-update: "true"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
