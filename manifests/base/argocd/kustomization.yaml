@@ -3,7 +3,6 @@ kind: Kustomization
 
 resources:
 - mqtt-sub-client.argocd.yaml
-- go-counter-consumer.argocd.yaml
-- go-counter-producer.argocd.yaml
+- go-counter-backend.argocd.yaml
 - dotnetapi.argocd.yaml
 - imageUpdater.yaml
