@@ -1,6 +1,6 @@
 # K3s Infrastructure Setup
 
-This repository contains the infrastructure configuration for a K3s-based Kubernetes cluster, managed with Terraform and Kubernetes manifests. It is designed to automate the deployment and management of various services, including application backends, cron jobs, storage, networking, and monitoring tools.
+This repository contains the infrastructure configuration for a bare metal K3s-based Kubernetes cluster, managed with Terraform and Kubernetes manifests. It is designed to automate the deployment and management of various services, including application backends, cron jobs, storage, networking, and monitoring tools.
 
 ## Structure
 
