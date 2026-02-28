@@ -18,3 +18,18 @@ spec:
     port: 8888
     targetPort: 8888
     protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-counter-redis-svc
+  namespace: go-counter
+spec:
+  selector:
+    app: go-counter-redis
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 6379
+    targetPort: 6379
+    protocol: TCP
