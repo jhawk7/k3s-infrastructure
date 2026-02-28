@@ -33,7 +33,7 @@ spec:
         - containerPort: 6379
       - name: mqtt-sub-client
         image: jhawk7/mqtt-sub-client@sha256:5f2585f46713f8b6501a20c16c5c02c972c04972fa813ae922f6f231f8987eee
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         envFrom:
         - secretRef:
             name: mqtt-sub-client-secret
