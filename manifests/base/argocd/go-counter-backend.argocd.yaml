@@ -2,21 +2,24 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: go-counter-producer
+  name: go-counter-backend
   namespace: argocd
   annotations:
     # Enable argocd-image-updater for this application
-    argocd-image-updater.argoproj.io/image-list: producer=jhawk7/go-counter-producer:latest
+    argocd-image-updater.argoproj.io/image-list: producer=jhawk7/go-counter-producer:latest, consumer=jhawk7/go-counter-consumer:latest
     # Use digest update strategy to track image by digest
     argocd-image-updater.argoproj.io/producer.update-strategy: digest
+    argocd-image-updater.argoproj.io/consumer.update-strategy: digest
     # Allow tracking of 'latest' tag (or specify a pattern like 'regexp:^v.*')
     #argocd-image-updater.argoproj.io/mqtt-sub-client.allow-tags: .*
     # Write back method: 'argocd' stores the override in ArgoCD app spec (not git)
     argocd-image-updater.argoproj.io/write-back-method: argocd
     # Optionally specify the platform (defaults to linux/amd64)
     argocd-image-updater.argoproj.io/producer.platforms: linux/arm64
+    argocd-image-updater.argoproj.io/consumer.platforms: linux/arm64
     # Optional: Force update check interval (default is 2 minutes)
     argocd-image-updater.argoproj.io/producer.force-update: "true"
+    argocd-image-updater.argoproj.io/consumer.force-update: "true"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
