@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-counter-consumer
+  namespace: go-counter
+spec:
+  selector:
+    matchLabels:
+      app: go-counter-consumer 
+  template:
+    metadata:
+      labels:
+        app: go-counter-consumer
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        type: agent
+      imagePullSecrets:
+      - name: go-counter-registry-credentials
+      containers:
+      - name: counter-consumer
+        image: jhawk7/go-counter-consumer@sha256:681cceea15e170821dc04b39554ad5d370898558bf5324a273c513dfe5d36036
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - secretRef:
+            name: go-counter-consumer-env
+        - secretRef:
+            name: go-counter-backend-mqtt-env
+        ports:
+        - containerPort: 8889 

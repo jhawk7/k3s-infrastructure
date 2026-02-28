@@ -4,7 +4,8 @@ kind: Kustomization
 resources:
 #- metallb
 - storage
-- counter-backend
+- go-counter-backend
 - cron
 - speedtest
 - mqtt-service
+- argocd

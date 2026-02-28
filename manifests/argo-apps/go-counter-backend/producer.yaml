@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-counter-producer
+  namespace: go-counter
+spec:
+  selector:
+    matchLabels:
+      app: go-counter-producer 
+  template:
+    metadata:
+      labels:
+        app: go-counter-producer
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: arm64
+        type: agent
+      imagePullSecrets:
+      - name: go-counter-registry-credentials
+      containers:
+      - name: counter-producer
+        image: jhawk7/go-counter-producer@sha256:e8136f4967fcf67fa8a51b3f49a971c4fc204d535d716e6b9ee40f2c7526b3e1
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - secretRef:
+            name: go-counter-producer-env
+        - secretRef:
+            name: go-counter-backend-mqtt-env
+        ports:
+        - containerPort: 8888
