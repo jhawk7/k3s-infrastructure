@@ -3,7 +3,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: go-counter-producer
-  namespace: go-counter
+  namespace: argocd
   annotations:
     # Enable argocd-image-updater for this application
     argocd-image-updater.argoproj.io/image-list: producer=jhawk7/go-counter-producer:latest
