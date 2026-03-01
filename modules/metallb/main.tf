@@ -24,6 +24,28 @@ resource "local_file" "metallb_ip_pool_patch" {
   filename = "${var.overlays_dir}/metallb_ip_pool.patch.yaml"
 }
 
+resource "local_file" "metallb_deployment_patch" {
+  content = yamlencode([
+    {
+      op   = "add"
+      path = "/spec/template/spec/nodeSelector"
+      value = { type = "controller" }
+    },
+    {
+      op   = "add"
+      path = "/spec/template/spec/tolerations"
+       value = {
+        key = "dedicated"
+        operator = "Equal"
+        value = "blocked"
+        effect = "NoSchedule"
+      }
+    }
+  ])
+
+  filename = "${var.overlays_dir}/metallb_deployment.patch.yaml"
+}
+
 output "kustomization_fragment" {
   depends_on = [ local_file.metallb_ip_pool_patch ]
   value = {
@@ -34,6 +56,14 @@ output "kustomization_fragment" {
           name = "metallb-ip-pool"
         }
         path = "metallb_ip_pool.patch.yaml"
+      },
+      {
+        target = {
+          kind = "Deployment"
+          name = "controller"
+          namespace = "metallb-system"
+        }
+        path = "metallb_deployment.patch.yaml"
       }
     ]
   }
