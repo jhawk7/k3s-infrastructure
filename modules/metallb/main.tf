@@ -35,9 +35,9 @@ resource "local_file" "metallb_deployment_patch" {
       op   = "add"
       path = "/spec/template/spec/tolerations"
        value = {
-        key = "dedicated"
+        key = "type"
         operator = "Equal"
-        value = "blocked"
+        value = "controller"
         effect = "NoSchedule"
       }
     }

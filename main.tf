@@ -1,11 +1,20 @@
+terraform {
+  required_providers {
+    helm = {
+      source  = "hashicorp/helm"
+      version = ">= 2.0.0"
+    }
+  }
+}
+
 locals {
   overlays_dir = "${path.root}/manifests/overlays"
   base_dir = "${path.root}/manifests/base"
-  docker_config_b64 = base64encode(file("${path.root}/manifests/overlays/env_files/.docker-config.json"))
   kustomize_fragments = [
     #module.metallb.kustomization_fragment,
     #module.smb-storage.kustomization_fragment,
     module.nfs-storage.kustomization_fragment,
+    #module.prometheus.kustomization_fragment,
     module.counter-backend.kustomization_fragment,
     module.cron.kustomization_fragment,
     module.mqtt.kustomization_fragment
@@ -48,19 +57,28 @@ module "nfs-storage" {
   nfs_server = var.nfs_server
   overlays_dir = local.overlays_dir
 }
+
+# module "prometheus" {
+#   depends_on = [ null_resource.create_overlays_dir ]
+#   source = "./modules/prometheus"
+#   external_ip = var.prom_external_ip
+#   node5_ip = var.node5_ip
+#   node6_ip = var.node6_ip
+#   vnas_ip = var.vnas_ip
+#   vnode_ip = var.vnode_ip
+# }
+
 module "counter-backend" {
   depends_on = [ null_resource.create_overlays_dir ]
   source = "./modules/counter-backend"
   external_ip = var.counter_producer_external_ip
   overlays_dir = local.overlays_dir
-  docker_config_b64 = local.docker_config_b64
 }
 
 module "cron" {
   depends_on = [ null_resource.create_overlays_dir ]
   source = "./modules/cron"
   overlays_dir = local.overlays_dir
-  docker_config_b64 = local.docker_config_b64
 }
 
 module "mqtt" {
@@ -68,7 +86,6 @@ module "mqtt" {
   source = "./modules/mqtt"
   external_ip = var.mqtt_external_ip
   overlays_dir = local.overlays_dir
-  docker_config_b64 = local.docker_config_b64
 }
 
 resource "local_file" "kustomization" {
@@ -76,6 +93,7 @@ resource "local_file" "kustomization" {
     #module.metallb,
     #module.smb-storage,
     module.nfs-storage,
+    #module.prometheus,
     module.counter-backend, 
     module.cron,
     module.mqtt
