@@ -6,11 +6,11 @@ metadata:
 apiVersion: v1
 kind: Service
 metadata:
-  name: go-counter-producer-service
+  name: go-counter-backend-svc
   namespace: go-counter
 spec:
   selector:
-    app: go-counter-producer
+    app: go-counter-backend
   type: LoadBalancer
   loadBalancerIP: LB_IP #patched via kustomize
   ports:

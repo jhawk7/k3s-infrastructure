@@ -20,7 +20,7 @@ output "kustomization_fragment" {
       {
         target = {
           kind = "Service"
-          name = "go-counter-producer-service"
+          name = "go-counter-backend-svc"
         }
         path = "counter-producer-svc.patch.yaml"
       }
