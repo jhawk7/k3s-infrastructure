@@ -14,7 +14,7 @@ locals {
     #module.metallb.kustomization_fragment,
     #module.smb-storage.kustomization_fragment,
     module.nfs-storage.kustomization_fragment,
-    #module.prometheus.kustomization_fragment,
+    module.prometheus.kustomization_fragment,
     module.counter-backend.kustomization_fragment,
     module.cron.kustomization_fragment,
     module.mqtt.kustomization_fragment
@@ -58,15 +58,15 @@ module "nfs-storage" {
   overlays_dir = local.overlays_dir
 }
 
-# module "prometheus" {
-#   depends_on = [ null_resource.create_overlays_dir ]
-#   source = "./modules/prometheus"
-#   external_ip = var.prom_external_ip
-#   node5_ip = var.node5_ip
-#   node6_ip = var.node6_ip
-#   vnas_ip = var.vnas_ip
-#   vnode_ip = var.vnode_ip
-# }
+module "prometheus" {
+  depends_on = [ null_resource.create_overlays_dir ]
+  source = "./modules/prometheus"
+  external_ip = var.prom_external_ip
+  node5_ip = var.node5_ip
+  node6_ip = var.node6_ip
+  vnas_ip = var.vnas_ip
+  vnode_ip = var.vnode_ip
+}
 
 module "counter-backend" {
   depends_on = [ null_resource.create_overlays_dir ]
@@ -93,7 +93,7 @@ resource "local_file" "kustomization" {
     #module.metallb,
     #module.smb-storage,
     module.nfs-storage,
-    #module.prometheus,
+    module.prometheus,
     module.counter-backend, 
     module.cron,
     module.mqtt
