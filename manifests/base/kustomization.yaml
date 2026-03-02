@@ -9,3 +9,4 @@ resources:
 - speedtest
 - mqtt-service
 - argocd
+- portainer-agent

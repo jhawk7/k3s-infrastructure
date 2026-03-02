@@ -47,3 +47,8 @@ variable "vnas_ip" {
   type      = string
   sensitive = true
 }
+
+variable "portainer_agent_external_ip" {
+  type      = string
+  sensitive = true  
+}

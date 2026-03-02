@@ -17,7 +17,8 @@ locals {
     module.prometheus.kustomization_fragment,
     module.counter-backend.kustomization_fragment,
     module.cron.kustomization_fragment,
-    module.mqtt.kustomization_fragment
+    module.mqtt.kustomization_fragment,
+    module.portainer-agent.kustomization_fragment
   ]
 }
 
@@ -88,6 +89,13 @@ module "mqtt" {
   overlays_dir = local.overlays_dir
 }
 
+module "portainer-agent" {
+  depends_on = [ null_resource.create_overlays_dir ]
+  source = "./modules/portainer-agent"
+  external_ip = var.portainer_agent_external_ip
+  overlays_dir = local.overlays_dir
+}
+
 resource "local_file" "kustomization" {
   depends_on = [ 
     #module.metallb,
@@ -96,7 +104,8 @@ resource "local_file" "kustomization" {
     module.prometheus,
     module.counter-backend, 
     module.cron,
-    module.mqtt
+    module.mqtt,
+    module.portainer-agent
   ]
 
   filename = "${local.overlays_dir}/kustomization.yaml"
