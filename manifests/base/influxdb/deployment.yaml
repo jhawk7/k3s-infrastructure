@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: influxdb
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: influxdb
+  name: influxdb
+  namespace: influxdb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: influxdb
+  serviceName: influxdb
+  template:
+    metadata:
+      labels:
+        app: influxdb
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: node4 #because local-path and sqlite
+      containers:
+        - image: influxdb:alpine
+          name: influxdb
+          ports:
+            - containerPort: 8086
+              name: influxdb
+          volumeMounts:
+            - mountPath: /var/lib/influxdb2
+              name: influxdb-data
+          envFrom:
+            - secretRef:
+                name: influxdb-auth
+  volumeClaimTemplates:
+    - metadata:
+        name: influxdb-data
+        namespace: influxdb
+      spec:
+        storageClassName: local-path # influxdb uses sqlite which doesn't work well with smb storage
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1G
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: influxdb-svc
+  namespace: influxdb
+spec:
+  ports:
+    - name: influxdb
+      port: 8086
+      targetPort: 8086
+  selector:
+    app: influxdb
+  type: LoadBalancer
+  loadBalancerIP: LB_IP #patched via kustomize

@@ -52,3 +52,8 @@ variable "portainer_agent_external_ip" {
   type      = string
   sensitive = true  
 }
+
+variable "influxdb_external_ip" {
+  type      = string
+  sensitive = true  
+}

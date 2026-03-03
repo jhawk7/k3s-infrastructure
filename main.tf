@@ -18,7 +18,8 @@ locals {
     module.counter-backend.kustomization_fragment,
     module.cron.kustomization_fragment,
     module.mqtt.kustomization_fragment,
-    module.portainer-agent.kustomization_fragment
+    module.portainer-agent.kustomization_fragment,
+    module.influxdb.kustomization_fragment
   ]
 }
 
@@ -96,6 +97,13 @@ module "portainer-agent" {
   overlays_dir = local.overlays_dir
 }
 
+module "influxdb" {
+  depends_on = [ null_resource.create_overlays_dir ]
+  source = "./modules/influxdb"
+  external_ip = var.influxdb_external_ip
+  overlays_dir = local.overlays_dir
+}
+
 resource "local_file" "kustomization" {
   depends_on = [ 
     #module.metallb,
@@ -105,7 +113,8 @@ resource "local_file" "kustomization" {
     module.counter-backend, 
     module.cron,
     module.mqtt,
-    module.portainer-agent
+    module.portainer-agent,
+    module.influxdb
   ]
 
   filename = "${local.overlays_dir}/kustomization.yaml"
