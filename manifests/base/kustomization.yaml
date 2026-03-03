@@ -11,3 +11,4 @@ resources:
 - argocd
 - portainer-agent
 - influxdb
+- node-red

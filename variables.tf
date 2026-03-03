@@ -57,3 +57,8 @@ variable "influxdb_external_ip" {
   type      = string
   sensitive = true  
 }
+
+variable "node_red_external_ip" {
+  type      = string
+  sensitive = true  
+}

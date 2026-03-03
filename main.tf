@@ -1,12 +1,3 @@
-terraform {
-  required_providers {
-    helm = {
-      source  = "hashicorp/helm"
-      version = ">= 2.0.0"
-    }
-  }
-}
-
 locals {
   overlays_dir = "${path.root}/manifests/overlays"
   base_dir = "${path.root}/manifests/base"
@@ -19,8 +10,18 @@ locals {
     module.cron.kustomization_fragment,
     module.mqtt.kustomization_fragment,
     module.portainer-agent.kustomization_fragment,
-    module.influxdb.kustomization_fragment
+    module.influxdb.kustomization_fragment,
+    module.node-red.kustomization_fragment
   ]
+}
+
+terraform {
+  required_providers {
+    helm = {
+      source  = "hashicorp/helm"
+      version = ">= 2.0.0"
+    }
+  }
 }
 
 provider "kubernetes" {
@@ -104,6 +105,13 @@ module "influxdb" {
   overlays_dir = local.overlays_dir
 }
 
+module "node-red" {
+  depends_on = [ null_resource.create_overlays_dir ]
+  source = "./modules/node-red"
+  external_ip = var.node_red_external_ip
+  overlays_dir = local.overlays_dir
+}
+
 resource "local_file" "kustomization" {
   depends_on = [ 
     #module.metallb,
@@ -114,7 +122,8 @@ resource "local_file" "kustomization" {
     module.cron,
     module.mqtt,
     module.portainer-agent,
-    module.influxdb
+    module.influxdb,
+    module.node-red
   ]
 
   filename = "${local.overlays_dir}/kustomization.yaml"

@@ -24,7 +24,7 @@ kind: StorageClass
 metadata:
   name: nfs-retain
   annotations:
-    storageclass.kubernetes.io/is-default-class: true
+    storageclass.kubernetes.io/is-default-class: false
 provisioner: nfs.csi.k8s.io
 parameters:
   server: <NFS_SERVER_IP> #patched via kustomize
