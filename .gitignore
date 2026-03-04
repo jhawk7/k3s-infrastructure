@@ -19,3 +19,6 @@ outplans/
 
 #overlays
 manifests/overlays/*.yaml
+
+#grafana dashboards
+grafana-dashboards/
