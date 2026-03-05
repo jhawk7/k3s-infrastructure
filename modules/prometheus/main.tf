@@ -63,11 +63,6 @@ locals {
       scrape_interval: 10s
       static_configs:
         - targets: ['${var.vnas_ip}:9922']
-    - job_name: 'samba-exporter-k3s'
-      metrics_path: metrics
-      scrape_interval: 10s
-      static_configs:
-        - targets: ['${var.node5_ip}:9922']
     - job_name: 'mqtt-exp'
       scrape_interval: 10s
       static_configs:
