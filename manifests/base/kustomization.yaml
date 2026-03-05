@@ -10,5 +10,4 @@ resources:
 - mqtt-service
 - argocd
 - portainer-agent
-- influxdb
 - node-red
