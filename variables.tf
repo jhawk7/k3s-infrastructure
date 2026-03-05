@@ -58,6 +58,31 @@ variable "influxdb_external_ip" {
   sensitive = true  
 }
 
+variable "influxdb_admin_user" {
+  type = string
+  sensitive = true
+}
+
+variable "influxdb_admin_password" {
+  type = string
+  sensitive = true
+}
+
+variable "grafana_external_ip" {
+  type      = string
+  sensitive = true  
+}
+
+variable "grafana_influxdb_bills_token" {
+  type = string
+  sensitive = true
+}
+
+variable "grafana_influxdb_proxmox_token" {
+  type = string
+  sensitive = true
+}
+
 variable "node_red_external_ip" {
   type      = string
   sensitive = true  

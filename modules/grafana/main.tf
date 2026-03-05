@@ -27,8 +27,7 @@ resource "helm_release" "grafana" {
 				loadBalancerIP = var.external_ip
 			}
       nodeSelector = {
-        type = "agent",
-        kubernetes.io/hostname = "node7"
+        type = "agent"
       }
       persistence = {
         enabled = true
@@ -46,11 +45,43 @@ resource "helm_release" "grafana" {
               name      = "Prometheus"
               type      = "prometheus"
               access    = "proxy"
-              url       = "http://prometheus.monitoring.svc.cluster.local"
+              url       = "http://prometheus-server.prometheus.svc.cluster.local"
+              basicAuth = false
+            },
+            {
+              name      = "InfluxDB-Bills"
+              type      = "influxdb"
+              access    = "proxy"
+              url       = "http://influxdb-svc.influxdb.svc.cluster.local:8086"
               basicAuth = true
-              basicAuthUser = "admin"
+              uid = "influxdb-bills"
+              basicAuthUser = var.influxdb_admin_user
               secureJsonData = {
-                basicAuthPassword = "prom-pass-123"
+                basicAuthPassword = var.influxdb_admin_password
+              }
+              jsonData = {
+                version = "Flux"
+                organization = "bill-parser"
+                defaultBucket = "bills"
+                token = var.influxdb_bills_token
+              }
+            },
+            {
+              name      = "InfluxDB-Bills"
+              type      = "influxdb"
+              access    = "proxy"
+              url       = "http://influxdb-svc.influxdb.svc.cluster.local:8086"
+              basicAuth = true
+              uid = "influxdb-proxmox"
+              basicAuthUser = var.influxdb_admin_user
+              secureJsonData = {
+                basicAuthPassword = var.influxdb_admin_password
+              }
+              jsonData = {
+                version = "Flux"
+                organization = "proxmox"
+                defaultBucket = "proxmox-metrics"
+                token = var.influxdb_proxmox_token
               }
             }
           ]
