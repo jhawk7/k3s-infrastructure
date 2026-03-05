@@ -9,15 +9,21 @@ locals {
 	namespace = "grafana"
 }
 
+resource "kubernetes_namespace_v1" "grafana" {
+  metadata {
+    name = local.namespace
+  }
+}
+
 resource "helm_release" "grafana" {
 	name       = "grafana"
 	chart = "oci://ghcr.io/grafana-community/helm-charts/grafana"
 	namespace  = local.namespace
-	version    = "12.4.0"
+  version = "11.3.0"
 
 	values = [
 		yamlencode({
-      globals = {
+      global = {
         imagePullSecrets = [
           { name = "${local.namespace}-registry-credentials" }
         ]
@@ -52,98 +58,105 @@ resource "helm_release" "grafana" {
               name      = "InfluxDB-Bills"
               type      = "influxdb"
               access    = "proxy"
-              url       = "http://influxdb-svc.influxdb.svc.cluster.local:8086"
+              url       = "http://influxdb-influxdb2.influxdb.svc.cluster.local"
               basicAuth = true
               uid = "influxdb-bills"
               basicAuthUser = var.influxdb_admin_user
               secureJsonData = {
                 basicAuthPassword = var.influxdb_admin_password
+                token = var.influxdb_bills_token
               }
               jsonData = {
                 version = "Flux"
                 organization = "bill-parser"
                 defaultBucket = "bills"
-                token = var.influxdb_bills_token
               }
             },
             {
-              name      = "InfluxDB-Bills"
+              name      = "InfluxDB-Proxmox"
               type      = "influxdb"
               access    = "proxy"
-              url       = "http://influxdb-svc.influxdb.svc.cluster.local:8086"
+              url       = "http://influxdb-influxdb2.influxdb.svc.cluster.local"
               basicAuth = true
               uid = "influxdb-proxmox"
               basicAuthUser = var.influxdb_admin_user
               secureJsonData = {
                 basicAuthPassword = var.influxdb_admin_password
+                token = var.influxdb_proxmox_token
               }
               jsonData = {
                 version = "Flux"
                 organization = "proxmox"
                 defaultBucket = "proxmox-metrics"
-                token = var.influxdb_proxmox_token
               }
             }
           ]
         }
       }
+      dashboardProviders = {
+        "dashboardproviders.yaml" = {
+          apiVersion = 1
+          providers = [{
+            name            = "default" # Name of the provider
+            orgId           = 1
+            folder          = ""        # UI folder to put dashboards in
+            type            = "file"
+            disableDeletion = false
+            editable        = true
+            options = {
+              # This path MUST match where the Helm chart mounts the JSON
+              path = "/var/lib/grafana/dashboards/default"
+            }
+          }]
+        }
+      }
       dashboards = {
-        Bill_Tracker = {
-          json = file("${path.module}/grafana-dashboards/Bill-Tracker.json")
-        }
-        Kubernetes_Cluster_Prometheus = {
-          json = file("${path.module}/grafana-dashboards/Kubernetes-Cluster-Prometheus.json")
-        }
-        Kubernetes_Deployment_Metrics = {
-          json = file("${path.module}/grafana-dashboards/Kubernetes-Deployment-metrics.json")
-        }
-        Kubernetes_Kafka = {
-          json = file("${path.module}/grafana-dashboards/Kubernetes-Kafka.json")
-        }
-        "Bill-Tracker" = {
-          json = file("${path.module}/grafana-dashboards/Bill-Tracker.json")
-        }
-        "Kubernetes-Cluster-Prometheus" = {
-          json = file("${path.module}/grafana-dashboards/Kubernetes-Cluster-Prometheus.json")
-        }
-        "Kubernetes-Deployment-Metrics" = {
-          json = file("${path.module}/grafana-dashboards/Kubernetes-Deployment-Metrics.json")
-        }
-        "Kubernetes-Kafka" = {
-          json = file("${path.module}/grafana-dashboards/Kubernetes-Kafka.json")
-        }
-        "Kubernetes-Persistent-Volumes" = {
-          json = file("${path.module}/grafana-dashboards/Kubernetes-Persistent-Volumes.json")
-        }
-        "Kubernetes-Pod-Metrics" = {
-          json = file("${path.module}/grafana-dashboards/Kubernetes-Pod-Metrics.json")
-        }
-        "Mosquitto-Exporter" = {
-          json = file("${path.module}/grafana-dashboards/Mosquitto-Exporter.json")
-        }
-        "NAS-Samba-Service-V1.21" = {
-          json = file("${path.module}/grafana-dashboards/NAS-Samba-Service-V1.21.json")
-        }
-        "Node-Exporter-Full" = {
-          json = file("${path.module}/grafana-dashboards/Node-Exporter-Full.json")
-        }
-        "Pi-Thermo-Crawl-Space" = {
-          json = file("${path.module}/grafana-dashboards/Pi-Thermo-Crawl-Space.json")
-        }
-        "Picow-House-Plant-Moisture" = {
-          json = file("${path.module}/grafana-dashboards/Picow-House-Plant-Moisture.json")
-        }
-        "Picow-Temp-and-RH-House" = {
-          json = file("${path.module}/grafana-dashboards/Picow-Temp-and-RH-House.json")
-        }
-        "Pihole-Exporter" = {
-          json = file("${path.module}/grafana-dashboards/Pihole-Exporter.json")
-        }
-        "Proxmox-Cluster-Flux" = {
-          json = file("${path.module}/grafana-dashboards/Proxmox-Cluster-Flux.json")
-        }
-        "Speedtest-Exporter-Dashboard" = {
-          json = file("${path.module}/grafana-dashboards/Speedtest-Exporter-Dashboard.json")
+        default = {
+         "Bill-Tracker" = {
+          json = file("${path.root}/grafana-dashboards/Bill-Tracker.json")
+          }
+          "Kubernetes-Cluster-Prometheus" = {
+            json = file("${path.root}/grafana-dashboards/Kubernetes-Cluster-Prometheus.json")
+          }
+          "Kubernetes-Deployment-Metrics" = {
+            json = file("${path.root}/grafana-dashboards/Kubernetes-Deployment-Metrics.json")
+          }
+          "Kubernetes-Kafka" = {
+            json = file("${path.root}/grafana-dashboards/Kubernetes-Kafka.json")
+          }
+          "Kubernetes-Persistent-Volumes" = {
+            json = file("${path.root}/grafana-dashboards/Kubernetes-Persistent-Volumes.json")
+          }
+          "Kubernetes-Pod-Metrics" = {
+            json = file("${path.root}/grafana-dashboards/Kubernetes-Pod-Metrics.json")
+          }
+          "Mosquitto-Exporter" = {
+            json = file("${path.root}/grafana-dashboards/Mosquitto-Exporter.json")
+          }
+          "NAS-Samba-Service-V1.21" = {
+            json = file("${path.root}/grafana-dashboards/NAS-Samba-Service-V1.21.json")
+          }
+          "Node-Exporter-Full" = {
+            json = file("${path.root}/grafana-dashboards/Node-Exporter-Full.json")
+          }
+          "Pi-Thermo-Crawl-Space" = {
+            json = file("${path.root}/grafana-dashboards/Pi-Thermo-Crawl-Space.json")
+          }
+          "Picow-House-Plant-Moisture" = {
+            json = file("${path.root}/grafana-dashboards/Picow-House-Plant-Moisture.json")
+          }
+          "Picow-Temp-and-RH-House" = {
+            json = file("${path.root}/grafana-dashboards/Picow-Temp-and-RH-House.json")
+          }
+          "Pihole-Exporter" = {
+            json = file("${path.root}/grafana-dashboards/Pihole-Exporter.json")
+          }
+          "Proxmox-Cluster-Flux" = {
+            json = file("${path.root}/grafana-dashboards/Proxmox-Cluster-Flux.json")
+          }
+          "Speedtest-Exporter-Dashboard" = {
+            json = file("${path.root}/grafana-dashboards/Speedtest-Exporter-Dashboard.json")
+          } 
         }
       }
     })

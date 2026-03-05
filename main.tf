@@ -6,7 +6,7 @@ locals {
     #module.smb-storage.kustomization_fragment,
     module.nfs-storage.kustomization_fragment,
     module.prometheus.kustomization_fragment,
-    #module.grafana.kustomization_fragment,
+    module.grafana.kustomization_fragment,
     module.counter-backend.kustomization_fragment,
     module.cron.kustomization_fragment,
     module.mqtt.kustomization_fragment,
@@ -72,15 +72,15 @@ module "prometheus" {
   vnode_ip = var.vnode_ip
 }
 
-# module "grafana" {
-#   depends_on = [ null_resource.create_overlays_dir ]
-#   source = "./modules/grafana"
-#   external_ip = var.grafana_external_ip
-#   influxdb_admin_user = var.influxdb_admin_user
-#   influxdb_admin_password = var.influxdb_admin_password
-#   influxdb_bills_token = var.grafana_influxdb_bills_token
-#   influxdb_proxmox_token = var.grafana_influxdb_proxmox_token
-# }
+module "grafana" {
+  depends_on = [ null_resource.create_overlays_dir ]
+  source = "./modules/grafana"
+  external_ip = var.grafana_external_ip
+  influxdb_admin_user = var.influxdb_admin_user
+  influxdb_admin_password = var.influxdb_admin_password
+  influxdb_bills_token = var.grafana_influxdb_bills_token
+  influxdb_proxmox_token = var.grafana_influxdb_proxmox_token
+}
 
 module "counter-backend" {
   depends_on = [ null_resource.create_overlays_dir ]
@@ -129,7 +129,7 @@ resource "local_file" "kustomization" {
     #module.smb-storage,
     module.nfs-storage,
     module.prometheus,
-    #module.grafana,
+    module.grafana,
     module.counter-backend, 
     module.cron,
     module.mqtt,
