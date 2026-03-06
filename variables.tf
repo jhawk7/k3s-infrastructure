@@ -83,6 +83,11 @@ variable "grafana_influxdb_proxmox_token" {
   sensitive = true
 }
 
+variable "opentelemetry_external_ip" {
+  type      = string
+  sensitive = true  
+}
+
 variable "node_red_external_ip" {
   type      = string
   sensitive = true  

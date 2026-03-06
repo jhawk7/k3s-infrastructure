@@ -3,7 +3,6 @@ locals {
   base_dir = "${path.root}/manifests/base"
   kustomize_fragments = [
     #module.metallb.kustomization_fragment,
-    #module.smb-storage.kustomization_fragment,
     module.nfs-storage.kustomization_fragment,
     module.prometheus.kustomization_fragment,
     module.grafana.kustomization_fragment,
@@ -12,6 +11,7 @@ locals {
     module.mqtt.kustomization_fragment,
     module.portainer-agent.kustomization_fragment,
     module.influxdb.kustomization_fragment,
+    module.opentelemetry.kustomization_fragment,
     module.node-red.kustomization_fragment
   ]
 }
@@ -45,13 +45,6 @@ resource "null_resource" "create_overlays_dir" {
 #   depends_on = [ null_resource.create_overlays_dir ]
 #   source = "./modules/metallb"
 #   metallb_ip_pool = var.metallb_ip_pool
-#   overlays_dir = local.overlays_dir
-# }
-
-# module "smb-storage" {
-#   depends_on = [ null_resource.create_overlays_dir ]
-#   source = "./modules/smb-storage"
-#   smb_source = var.smb_source
 #   overlays_dir = local.overlays_dir
 # }
 
@@ -116,6 +109,12 @@ module "influxdb" {
   #overlays_dir = local.overlays_dir
 }
 
+module "opentelemetry" {
+  depends_on = [ null_resource.create_overlays_dir ]
+  source = "./modules/opentelemetry"
+  external_ip = var.opentelemetry_external_ip
+}
+
 module "node-red" {
   depends_on = [ null_resource.create_overlays_dir ]
   source = "./modules/node-red"
@@ -126,7 +125,6 @@ module "node-red" {
 resource "local_file" "kustomization" {
   depends_on = [ 
     #module.metallb,
-    #module.smb-storage,
     module.nfs-storage,
     module.prometheus,
     module.grafana,
@@ -135,6 +133,7 @@ resource "local_file" "kustomization" {
     module.mqtt,
     module.portainer-agent,
     module.influxdb,
+    module.opentelemetry,
     module.node-red
   ]
 

@@ -1,9 +1,3 @@
-//todo
-// opentel namespace
-// secret for registry creds
-// patch for load balancer ip
-// helm release
-
 locals {
   namespace = "opentel"
 }
@@ -18,42 +12,68 @@ resource "helm_release" "otel_collector" {
   name       = "opentelemetry-collector"
   repository = "https://open-telemetry.github.io/opentelemetry-helm-charts"
   chart      = "opentelemetry-collector"
-  namespace  = "opentel"
-  create_namespace = true
+  namespace  = local.namespace
+  version = "0.146.1"
 
   values = [
     yamlencode({
       # mode is REQUIRED and must be 'daemonset', 'deployment', or 'statefulset'
-      mode = "deployment" 
-
-      config = {
-        receivers = {
-          otlp = {
-            protocols = {
-              grpc = { endpoint = "0.0.0.0:4317" }
-              http = { endpoint = "0.0.0.0:4318" }
-            }
-          }
+      mode = "deployment"
+      image = {
+        repository = "otel/opentelemetry-collector"
+        tag = "latest"
+      } 
+      imagePullSecrets = [
+        { name = "${local.namespace}-registry-credentials" }
+      ]
+      nodeSelector = {
+        type = "agent"
+      }
+      ports = {
+        metrics = {
+          enabled = true
+          containerPort = 8888
+          servicePort = 8888
+          protocol = "TCP"
         }
+        prom-exporter = {
+          enabled = true
+          containerPort = 8889
+          servicePort = 8889
+          protocol = "TCP"
+        }
+      }
+      service = {
+        type = "LoadBalancer"
+        loadBalancerIP = var.external_ip
+      }
+      config = {
         exporters = {
-          # Default debug exporter for verifying connectivity
-          debug = {
-            verbosity = "detailed"
+          prometheus = {
+            endpoint = "0.0.0.0:8889"
           }
         }
         service = {
           pipelines = {
-            traces = {
-              receivers = ["otlp"]
-              exporters = ["debug"]
-            }
             metrics = {
-              receivers = ["otlp"]
-              exporters = ["debug"]
+              exporters = ["prometheus"]
             }
           }
         }
       }
     })
   ]
+}
+
+output "kustomization_fragment" {
+  value = {
+    secretGenerator = [
+      {
+        name = "${local.namespace}-registry-credentials"
+        namespace = local.namespace
+        files = [".dockerconfigjson=env_files/.docker-config.json"]
+        type = "kubernetes.io/dockerconfigjson"
+      }
+    ]
+  }
 }

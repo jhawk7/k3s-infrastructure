@@ -44,7 +44,7 @@ resource "helm_release" "prometheus" {
 
 locals {
   namespace = "prometheus"
-  opentel_svc = "opentel-collector-opentelemetry-collector.opentel.svc.cluster.local"
+  opentel_svc = "opentelemetry-collector.opentel.svc.cluster.local"
   extraScrapeConfigs = <<-EOT
     - job_name: 'node6'
       static_configs:
