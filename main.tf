@@ -12,6 +12,7 @@ locals {
     module.portainer-agent.kustomization_fragment,
     module.influxdb.kustomization_fragment,
     module.opentelemetry.kustomization_fragment,
+    module.argocd.kustomization_fragment,
     module.node-red.kustomization_fragment
   ]
 }
@@ -115,6 +116,13 @@ module "opentelemetry" {
   external_ip = var.opentelemetry_external_ip
 }
 
+module "argocd" {
+  depends_on = [ null_resource.create_overlays_dir ]
+  source = "./modules/argocd"
+  rollouts_external_ip = var.rollouts_external_ip
+  argocd_external_ip = var.argocd_external_ip
+}
+
 module "node-red" {
   depends_on = [ null_resource.create_overlays_dir ]
   source = "./modules/node-red"
@@ -134,6 +142,7 @@ resource "local_file" "kustomization" {
     module.portainer-agent,
     module.influxdb,
     module.opentelemetry,
+    module.argocd,
     module.node-red
   ]
 

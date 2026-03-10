@@ -83,6 +83,16 @@ variable "grafana_influxdb_proxmox_token" {
   sensitive = true
 }
 
+variable "argocd_external_ip" {
+  type      = string
+  sensitive = true  
+}
+
+variable "rollouts_external_ip" {
+  type      = string
+  sensitive = true  
+}
+
 variable "opentelemetry_external_ip" {
   type      = string
   sensitive = true  
