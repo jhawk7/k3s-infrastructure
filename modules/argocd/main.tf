@@ -47,6 +47,7 @@ resource "helm_release" "argo_rollouts" {
 
   values = [
     yamlencode({
+      namespaceOverride = local.namespace
       dashboard = {
         enabled = true
         service = {
@@ -81,14 +82,15 @@ resource "helm_release" "argocd_image_updater" {
         { name = "${local.namespace}-registry-credentials" }
       ]
       config = {
-        registries = {
-          dockerhub = {
+        registries = [
+          {
+            name = "dockerhub"
             api_url = "https://registry-1.docker.io"
             default = true
             insecure = false
             credentials = "pullsecret:${local.namespace}-registry-credentials"
           }
-        }
+        ]
       }
     })
   ]
