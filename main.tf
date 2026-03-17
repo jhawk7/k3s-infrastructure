@@ -1,19 +1,15 @@
 locals {
   overlays_dir = "${path.root}/manifests/overlays"
   base_dir = "${path.root}/manifests/base"
+  init_dir = "${path.root}/manifests/initial"
+
   kustomize_fragments = [
-    #module.metallb.kustomization_fragment,
-    module.nfs-storage.kustomization_fragment,
-    module.prometheus.kustomization_fragment,
-    module.grafana.kustomization_fragment,
-    module.counter-backend.kustomization_fragment,
+    module.go-counter-backend.kustomization_fragment,
     module.cron.kustomization_fragment,
     module.mqtt.kustomization_fragment,
     module.portainer-agent.kustomization_fragment,
-    module.influxdb.kustomization_fragment,
-    module.opentelemetry.kustomization_fragment,
-    module.argocd.kustomization_fragment,
-    module.node-red.kustomization_fragment
+    module.node-red.kustomization_fragment,
+    module.speedtest.kustomization_fragment
   ]
 }
 
@@ -36,28 +32,23 @@ provider "helm" {
   }
 }
 
-resource "null_resource" "create_overlays_dir" {
-  provisioner "local-exec" {
-    command = "mkdir -p ${local.overlays_dir}"
-  }
+# Phase 1
+module "metallb" {
+  source = "./modules/metallb"
+  metallb_ip_pool = var.metallb_ip_pool
+  init_dir = local.init_dir
 }
 
-# module "metallb" {
-#   depends_on = [ null_resource.create_overlays_dir ]
-#   source = "./modules/metallb"
-#   metallb_ip_pool = var.metallb_ip_pool
-#   overlays_dir = local.overlays_dir
-# }
-
+# Phase 2
 module "nfs-storage" {
-  depends_on = [ null_resource.create_overlays_dir ]
   source = "./modules/nfs-storage"
   nfs_server = var.nfs_server
   overlays_dir = local.overlays_dir
 }
 
+#Phase 3
 module "prometheus" {
-  depends_on = [ null_resource.create_overlays_dir ]
+  depends_on = [ module.nfs-storage ]
   source = "./modules/prometheus"
   external_ip = var.prom_external_ip
   node5_ip = var.node5_ip
@@ -67,7 +58,7 @@ module "prometheus" {
 }
 
 module "grafana" {
-  depends_on = [ null_resource.create_overlays_dir ]
+  depends_on = [ module.nfs-storage ]
   source = "./modules/grafana"
   external_ip = var.grafana_external_ip
   influxdb_admin_user = var.influxdb_admin_user
@@ -76,9 +67,35 @@ module "grafana" {
   influxdb_proxmox_token = var.grafana_influxdb_proxmox_token
 }
 
-module "counter-backend" {
-  depends_on = [ null_resource.create_overlays_dir ]
-  source = "./modules/counter-backend"
+module "influxdb" {
+  depends_on = [ module.nfs-storage ]
+  source = "./modules/influxdb"
+  external_ip = var.influxdb_external_ip
+}
+
+module "opentelemetry" {
+  source = "./modules/opentelemetry"
+  external_ip = var.opentelemetry_external_ip
+}
+
+module "argocd" {
+  depends_on = [ module.nfs-storage ]
+  source = "./modules/argocd"
+  rollouts_external_ip = var.rollouts_external_ip
+  argocd_external_ip = var.argocd_external_ip
+}
+
+# Phase 4
+
+resource "null_resource" "create_overlays_dir" {
+  provisioner "local-exec" {
+    command = "mkdir -p ${local.overlays_dir}"
+  }
+}
+
+module "go-counter-backend" {
+  depends_on = [ null_resource.create_overlays_dir, module.nfs-storage ]
+  source = "./modules/go-counter-backend"
   external_ip = var.counter_producer_external_ip
   overlays_dir = local.overlays_dir
 }
@@ -90,7 +107,7 @@ module "cron" {
 }
 
 module "mqtt" {
-  depends_on = [ null_resource.create_overlays_dir ]
+  depends_on = [ null_resource.create_overlays_dir, module.nfs-storage ]
   source = "./modules/mqtt"
   external_ip = var.mqtt_external_ip
   overlays_dir = local.overlays_dir
@@ -103,47 +120,26 @@ module "portainer-agent" {
   overlays_dir = local.overlays_dir
 }
 
-module "influxdb" {
-  depends_on = [ null_resource.create_overlays_dir ]
-  source = "./modules/influxdb"
-  external_ip = var.influxdb_external_ip
-  #overlays_dir = local.overlays_dir
-}
-
-module "opentelemetry" {
-  depends_on = [ null_resource.create_overlays_dir ]
-  source = "./modules/opentelemetry"
-  external_ip = var.opentelemetry_external_ip
-}
-
-module "argocd" {
-  depends_on = [ null_resource.create_overlays_dir ]
-  source = "./modules/argocd"
-  rollouts_external_ip = var.rollouts_external_ip
-  argocd_external_ip = var.argocd_external_ip
-}
-
 module "node-red" {
-  depends_on = [ null_resource.create_overlays_dir ]
+  depends_on = [ null_resource.create_overlays_dir, module.nfs-storage ]
   source = "./modules/node-red"
   external_ip = var.node_red_external_ip
   overlays_dir = local.overlays_dir
 }
 
+module "speedtest" {
+  depends_on = [ null_resource.create_overlays_dir ]
+  source = "./modules/speedtest"
+}
+
 resource "local_file" "kustomization" {
   depends_on = [ 
-    #module.metallb,
-    module.nfs-storage,
-    module.prometheus,
-    module.grafana,
-    module.counter-backend, 
+    module.go-counter-backend, 
     module.cron,
     module.mqtt,
     module.portainer-agent,
-    module.influxdb,
-    module.opentelemetry,
-    module.argocd,
-    module.node-red
+    module.node-red,
+    module.speedtest
   ]
 
   filename = "${local.overlays_dir}/kustomization.yaml"

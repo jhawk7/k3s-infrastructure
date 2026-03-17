@@ -11,6 +11,22 @@ resource "kubernetes_namespace_v1" "prometheus" {
   }
 }
 
+# create docker registry secrets in each namespace
+resource "kubernetes_secret_v1" "docker_registry" {
+  metadata {
+    name      = "${local.namespace}-registry-credentials"
+    namespace = local.namespace
+  }
+
+  # Use the specific Kubernetes type for registry credentials
+  type = "kubernetes.io/dockerconfigjson"
+
+  data = {
+    ".dockerconfigjson" = file("${path.root}/manifests/overlays/env_files/.docker-config.json")
+  }
+}
+
+
 resource "helm_release" "prometheus" {
   name       = "prometheus"
   chart = "oci://ghcr.io/prometheus-community/charts/prometheus"
@@ -79,16 +95,16 @@ locals {
   EOT
 }
 
-output "kustomization_fragment" {
-  value = {
+# output "kustomization_fragment" {
+#   value = {
    
-    secretGenerator = [
-      {
-        name = "${local.namespace}-registry-credentials",
-        namespace = local.namespace,
-        files = [".dockerconfigjson=env_files/.docker-config.json"],
-        type = "kubernetes.io/dockerconfigjson"
-      }
-    ]
-  }
-}
+#     secretGenerator = [
+#       {
+#         name = "${local.namespace}-registry-credentials",
+#         namespace = local.namespace,
+#         files = [".dockerconfigjson=env_files/.docker-config.json"],
+#         type = "kubernetes.io/dockerconfigjson"
+#       }
+#     ]
+#   }
+# }

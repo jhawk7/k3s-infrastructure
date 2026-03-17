@@ -3,12 +3,39 @@ locals {
   namespace = "influxdb"
 }
 
+resource "kubernetes_namespace_v1" "influxdb" {
+  metadata {
+    name = local.namespace
+  }
+}
+
+resource "kubernetes_secret_v1" "influxdb_auth" {
+  metadata {
+    name      = "influxdb-auth"
+    namespace = local.namespace
+  }
+  type = "Opaque"
+  data = jsondecode(file("${path.root}/manifests/overlays/env_files/influxdb-auth.json"))
+}
+
+resource "kubernetes_secret_v1" "docker_registry" {
+  metadata {
+    name      = "${local.namespace}-registry-credentials"
+    namespace = local.namespace
+  }
+
+  # Use the specific Kubernetes type for registry credentials
+  type = "kubernetes.io/dockerconfigjson"
+  data = {
+    ".dockerconfigjson" = file("${path.root}/manifests/overlays/env_files/.docker-config.json")
+  }
+}
+
 resource "helm_release" "influxdb" {
   name       = "influxdb"
   repository = "https://helm.influxdata.com/"
   chart      = "influxdb2"
   namespace  = local.namespace
-  create_namespace = true
   version = "2.1.2"
 
   values = [
@@ -46,23 +73,4 @@ resource "helm_release" "influxdb" {
       }
     })
   ]
-}
-
-output "kustomization_fragment" {
-  value = {
-    secretGenerator = [
-      {
-        name = "influxdb-auth"
-        namespace = local.namespace
-        envs = ["env_files/influxdb-auth.env"]
-        type = "Opaque"
-      },
-      {
-        name = "${local.namespace}-registry-credentials"
-        namespace = local.namespace
-        files = [".dockerconfigjson=env_files/.docker-config.json"]
-        type = "kubernetes.io/dockerconfigjson"
-      }
-    ]
-  }
 }

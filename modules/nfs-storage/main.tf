@@ -2,6 +2,26 @@
 
 locals {
   namespace = "nfs-csi-provisioner"
+  share = "/srv/nfs-storage"
+}
+
+resource "kubernetes_namespace_v1" "nfs_csi_provisioner" {
+  metadata {
+    name = local.namespace
+  }
+}
+
+resource "kubernetes_secret_v1" "docker_registry" {
+  metadata {
+    name      = "${local.namespace}-registry-credentials"
+    namespace = local.namespace
+  }
+
+  # Use the specific Kubernetes type for registry credentials
+  type = "kubernetes.io/dockerconfigjson"
+  data = {
+    ".dockerconfigjson" = file("${path.root}/manifests/overlays/env_files/.docker-config.json")
+  }
 }
 resource "helm_release" "csi_driver_nfs" {
   name       = "csi-driver-nfs"
@@ -9,6 +29,7 @@ resource "helm_release" "csi_driver_nfs" {
   chart      = "csi-driver-nfs"
   namespace  = "nfs-csi-provisioner"
   version = "4.13.0"
+  create_namespace = false
 
   values = [
     yamlencode({
@@ -19,58 +40,36 @@ resource "helm_release" "csi_driver_nfs" {
         nodeSelector = {
           type = "controller"
         }
+        tolerations = [
+          {
+            key = "type"
+            operator = "Equal"
+            value = "controller"
+            effect = "NoSchedule"
+          }
+        ] 
       }
-      tolerations = [
+      storageClasses = [
         {
-          key      = "type"
-          operator = "Equal"
-          value    = "controller"
-          effect   = "NoSchedule"
+          name = "nfs"
+          default = true
+          parameters = {
+            server = var.nfs_server
+            share = local.share
+          }
+          volumeBindingMode = "Immediate"
+          reclaimPolicy = "Delete"
+        },
+        {
+          name = "nfs-retain"
+          parameters = {
+            server = var.nfs_server
+            share = local.share
+          }
+          volumeBindingMode = "Immediate"
+          reclaimPolicy = "Retain"
         }
       ]
     })
   ]
-}
-
-resource "local_file" "nfs_storage_patch" {
-  content = yamlencode([
-    {
-      op   = "replace"
-      path = "/parameters/server"
-      value = var.nfs_server
-    }
-  ])
-
-  filename = "${var.overlays_dir}/nfs-storage.patch.yaml"
-}
-
-output "kustomization_fragment" {
-  depends_on = [ local_file.nfs_storage_patch ]
-  value = {
-    secretGenerator = [
-      {
-        name = "${local.namespace}-registry-credentials"
-        namespace = local.namespace
-        files = [".dockerconfigjson=env_files/.docker-config.json"]
-        type = "kubernetes.io/dockerconfigjson"
-      }
-    ]
-
-    patches = [
-      {
-        target = {
-          kind = "StorageClass"
-          name = "nfs"
-        }
-        path = "nfs-storage.patch.yaml"
-      },
-      {
-        target = {
-          kind = "StorageClass"
-          name = "nfs-retain"
-        }
-        path = "nfs-storage.patch.yaml"
-      }
-    ]
-  }
 }

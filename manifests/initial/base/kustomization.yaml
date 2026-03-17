@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- metallb
+
+# terraform local exec wont apply patch if the initial field isn't present in the yaml (tolerations in this case)
+patches:
+  - target:
+      kind: Deployment # Use DaemonSet for the "speaker" component
+      name: controller # Use the actual name from the manifest
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: controller
+      spec:
+        template:
+          spec:
+            containers:
+              - name: controller
+                imagePullPolicy: IfNotPresent
+            tolerations:
+              - key: "type"
+                operator: "Equal"
+                value: "controller"
+                effect: "NoSchedule"
+            

@@ -1,0 +1,11 @@
+"patches":
+- "path": "metallb_ip_pool.patch.yaml"
+  "target":
+    "kind": "IPAddressPool"
+    "name": "metallb-ip-pool"
+- "path": "metallb_deployment.patch.yaml"
+  "target":
+    "kind": "Deployment"
+    "name": "controller"
+"resources":
+- "../base"

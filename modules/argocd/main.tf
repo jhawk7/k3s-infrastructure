@@ -10,6 +10,19 @@ resource "kubernetes_namespace_v1" "argocd" {
   }
 }
 
+resource "kubernetes_secret_v1" "docker_registry" {
+  metadata {
+    name      = "${local.namespace}-registry-credentials"
+    namespace = local.namespace
+  }
+
+  # Use the specific Kubernetes type for registry credentials
+  type = "kubernetes.io/dockerconfigjson"
+  data = {
+    ".dockerconfigjson" = file("${path.root}/manifests/overlays/env_files/.docker-config.json")
+  }
+}
+
 # 1. Install Argo CD
 resource "helm_release" "argocd" {
   name             = "argocd"
@@ -81,6 +94,10 @@ resource "helm_release" "argocd_image_updater" {
       imagePullSecrets = [
         { name = "${local.namespace}-registry-credentials" }
       ]
+      crds = {
+        install = true
+        keep = false
+      }
       config = {
         registries = [
           {
@@ -96,17 +113,4 @@ resource "helm_release" "argocd_image_updater" {
   ]
 
   depends_on = [helm_release.argocd]
-}
-
-output "kustomization_fragment" {
-  value = {
-    secretGenerator = [
-      {
-        name = "${local.namespace}-registry-credentials"
-        namespace = local.namespace
-        files = [".dockerconfigjson=env_files/.docker-config.json"]
-        type = "kubernetes.io/dockerconfigjson"
-      }
-    ]
-  }
 }

@@ -21,6 +21,8 @@ spec:
         type: agent
       securityContext:
         fsGroup: 1000 
+      imagePullSecrets:
+      - name: node-red-registry-credentials
       containers:
       - name: node-red
         image: nodered/node-red:latest

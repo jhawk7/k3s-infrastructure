@@ -8,6 +8,19 @@ resource "kubernetes_namespace_v1" "opentel" {
   }
 }
 
+resource "kubernetes_secret_v1" "docker_registry" {
+  metadata {
+    name      = "${local.namespace}-registry-credentials"
+    namespace = local.namespace
+  }
+
+  # Use the specific Kubernetes type for registry credentials
+  type = "kubernetes.io/dockerconfigjson"
+  data = {
+    ".dockerconfigjson" = file("${path.root}/manifests/overlays/env_files/.docker-config.json")
+  }
+}
+
 resource "helm_release" "otel_collector" {
   name       = "opentelemetry-collector"
   repository = "https://open-telemetry.github.io/opentelemetry-helm-charts"
@@ -65,15 +78,15 @@ resource "helm_release" "otel_collector" {
   ]
 }
 
-output "kustomization_fragment" {
-  value = {
-    secretGenerator = [
-      {
-        name = "${local.namespace}-registry-credentials"
-        namespace = local.namespace
-        files = [".dockerconfigjson=env_files/.docker-config.json"]
-        type = "kubernetes.io/dockerconfigjson"
-      }
-    ]
-  }
-}
+# output "kustomization_fragment" {
+#   value = {
+#     secretGenerator = [
+#       {
+#         name = "${local.namespace}-registry-credentials"
+#         namespace = local.namespace
+#         files = [".dockerconfigjson=env_files/.docker-config.json"]
+#         type = "kubernetes.io/dockerconfigjson"
+#       }
+#     ]
+#   }
+# }

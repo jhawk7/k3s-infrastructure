@@ -1,14 +1,16 @@
 locals {
-  base_dir = "${path.root}/manifests/base"
+  namespace = "metallb-system"
+  metallb_dir = "${var.init_dir}/base/metallb"
+  overlays_dir = "${var.init_dir}/overlays"
 }
 
 data "http" "metallb" {
-  url = "https://raw.githubusercontent.com/metallb/metallb/v0.15.2/config/manifests/metallb-native.yaml"
+  url = "https://raw.githubusercontent.com/metallb/metallb/v0.15.3/config/manifests/metallb-native.yaml"
 }
 
 resource "local_file" "metallb_manifest" {
   depends_on = [ data.http.metallb ]
-  filename = "${local.base_dir}/metallb/metallb.deploy.yaml"
+  filename = "${local.metallb_dir}/metallb.deploy.yaml"
   content  = data.http.metallb.response_body
 }
 
@@ -21,34 +23,29 @@ resource "local_file" "metallb_ip_pool_patch" {
     }
   ])
 
-  filename = "${var.overlays_dir}/metallb_ip_pool.patch.yaml"
+  filename = "${local.overlays_dir}/metallb_ip_pool.patch.yaml"
 }
 
 resource "local_file" "metallb_deployment_patch" {
+  depends_on = [ resource.local_file.metallb_manifest ]
   content = yamlencode([
     {
       op   = "add"
       path = "/spec/template/spec/nodeSelector"
       value = { type = "controller" }
-    },
-    {
-      op   = "add"
-      path = "/spec/template/spec/tolerations"
-       value = {
-        key = "type"
-        operator = "Equal"
-        value = "controller"
-        effect = "NoSchedule"
-      }
     }
   ])
 
-  filename = "${var.overlays_dir}/metallb_deployment.patch.yaml"
+  filename = "${local.overlays_dir}/metallb_deployment.patch.yaml"
 }
 
-output "kustomization_fragment" {
+resource "local_file" "metallb_kustomization" {
   depends_on = [ local_file.metallb_ip_pool_patch ]
-  value = {
+  filename = "${local.overlays_dir}/kustomization.yaml"
+  content = yamlencode({
+    resources = [
+      "../base"
+    ]
     patches = [
       {
         target = {
@@ -61,10 +58,19 @@ output "kustomization_fragment" {
         target = {
           kind = "Deployment"
           name = "controller"
-          namespace = "metallb-system"
         }
         path = "metallb_deployment.patch.yaml"
       }
     ]
+  })
+}
+
+resource "null_resource" "render_kustomize" {
+  depends_on = [
+    local_file.metallb_kustomization,
+  ]
+
+  provisioner "local-exec" {
+    command = "kubectl apply -k ${local.overlays_dir}"
   }
 }

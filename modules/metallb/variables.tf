@@ -1,5 +1,5 @@
 
-variable "overlays_dir" {
+variable "init_dir" {
   type      = string
   sensitive = false
 }

@@ -15,6 +15,28 @@ resource "kubernetes_namespace_v1" "grafana" {
   }
 }
 
+resource "kubernetes_secret_v1" "grafana_creds" {
+  metadata {
+    name      = "grafana-admin-credentials"
+    namespace = local.namespace
+  }
+  type = "Opaque"
+  data = jsondecode(file("${path.root}/manifests/overlays/env_files/grafana-creds.json"))
+}
+
+resource "kubernetes_secret" "docker_registry" {
+  metadata {
+    name      = "${local.namespace}-registry-credentials"
+    namespace = local.namespace
+  }
+
+  # Use the specific Kubernetes type for registry credentials
+  type = "kubernetes.io/dockerconfigjson"
+  data = {
+    ".dockerconfigjson" = file("${path.root}/manifests/overlays/env_files/.docker-config.json")
+  }
+}
+
 resource "helm_release" "grafana" {
 	name       = "grafana"
 	chart = "oci://ghcr.io/grafana-community/helm-charts/grafana"
@@ -163,21 +185,23 @@ resource "helm_release" "grafana" {
   ]
 }
 
-output "kustomization_fragment" {
-  value = {
-    secretGenerator = [
-      {
-        name = "${local.namespace}-registry-credentials"
-        namespace = local.namespace
-        files = [".dockerconfigjson=env_files/.docker-config.json"]
-        type = "kubernetes.io/dockerconfigjson"
-      },
-      {
-        name = "grafana-admin-credentials"
-        namespace = local.namespace
-        envs = ["env_files/grafana-creds.env"]
-        type = "Opaque"
-      }
-    ]
-  }
-}
+# output "kustomization_fragment" {
+#   value = {
+#     secretGenerator = [
+#       {
+#         name = "${local.namespace}-registry-credentials"
+#         namespace = local.namespace
+#         files = [".dockerconfigjson=env_files/.docker-config.json"]
+#         type = "kubernetes.io/dockerconfigjson"
+#       },
+#       {
+#         name = "grafana-admin-credentials"
+#         namespace = local.namespace
+#         envs = ["env_files/grafana-creds.env"]
+#         type = "Opaque"
+#       }
+#     ]
+#   }
+# }
+
+

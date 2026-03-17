@@ -19,6 +19,8 @@ spec:
     spec:
       nodeSelector:
         kubernetes.io/hostname: node7
+      imagePullSecrets:
+        - name: speedtest-registry-credentials
       containers:
       - name: speedtest-exporter
         image: miguelndecarvalho/speedtest-exporter
