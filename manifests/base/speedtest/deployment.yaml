@@ -29,6 +29,6 @@ spec:
           - containerPort: 9798
         env:
           - name: SPEEDTEST_SERVER
-            value: "55149" #AL
+            value: "68865" 
           - name: SPEEDTEST_PORT
             value: "9798"
