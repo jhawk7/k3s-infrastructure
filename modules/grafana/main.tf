@@ -24,7 +24,7 @@ resource "kubernetes_secret_v1" "grafana_creds" {
   data = jsondecode(file("${path.root}/manifests/overlays/env_files/grafana-creds.json"))
 }
 
-resource "kubernetes_secret" "docker_registry" {
+resource "kubernetes_secret_v1" "docker_registry" {
   metadata {
     name      = "${local.namespace}-registry-credentials"
     namespace = local.namespace
