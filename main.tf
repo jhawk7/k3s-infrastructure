@@ -13,15 +13,6 @@ locals {
   ]
 }
 
-terraform {
-  required_providers {
-    helm = {
-      source  = "hashicorp/helm"
-      version = ">= 2.0.0"
-    }
-  }
-}
-
 provider "kubernetes" {
   config_path    = "~/.kube/config"
 }
@@ -32,6 +23,20 @@ provider "helm" {
   }
 }
 
+provider "time" {
+  # No configuration needed for the time provider
+}
+
+# terraform {
+#   required_providers {
+#     time = {
+#       source  = "hashicorp/time"
+#       version = "~> 0.9"
+#     }
+#   }
+# }
+
+
 # Phase 1
 module "metallb" {
   source = "./modules/metallb"
@@ -39,16 +44,26 @@ module "metallb" {
   init_dir = local.init_dir
 }
 
+resource "time_sleep" "wait_30_seconds_before_phase_2" {
+  create_duration = "30s"
+}
+
 # Phase 2
 module "nfs-storage" {
+  depends_on = [ time_sleep.wait_30_seconds_before_phase_2, module.metallb ]
   source = "./modules/nfs-storage"
   nfs_server = var.nfs_server
   overlays_dir = local.overlays_dir
 }
 
+resource "time_sleep" "wait_30_seconds_before_phase_3" {
+  depends_on = [ time_sleep.wait_30_seconds_before_phase_2 ]
+  create_duration = "30s"
+}
+
 #Phase 3
 module "prometheus" {
-  depends_on = [ module.nfs-storage ]
+  depends_on = [ time_sleep.wait_30_seconds_before_phase_3, module.nfs-storage ]
   source = "./modules/prometheus"
   external_ip = var.prom_external_ip
   node5_ip = var.node5_ip
@@ -58,7 +73,7 @@ module "prometheus" {
 }
 
 module "grafana" {
-  depends_on = [ module.nfs-storage ]
+  depends_on = [ time_sleep.wait_30_seconds_before_phase_3, module.nfs-storage ]
   source = "./modules/grafana"
   external_ip = var.grafana_external_ip
   influxdb_admin_user = var.influxdb_admin_user
@@ -67,73 +82,86 @@ module "grafana" {
   influxdb_proxmox_token = var.grafana_influxdb_proxmox_token
 }
 
+resource "time_sleep" "wait_20_seconds_before_phase_4" {
+  depends_on = [ time_sleep.wait_30_seconds_before_phase_3 ]
+  create_duration = "30s"
+}
+
+# Phase 4
 module "influxdb" {
-  depends_on = [ module.nfs-storage ]
+  depends_on = [ time_sleep.wait_20_seconds_before_phase_4, module.nfs-storage ]
   source = "./modules/influxdb"
   external_ip = var.influxdb_external_ip
 }
 
 module "opentelemetry" {
+  depends_on = [ time_sleep.wait_20_seconds_before_phase_4, module.nfs-storage ]
   source = "./modules/opentelemetry"
   external_ip = var.opentelemetry_external_ip
 }
 
 module "argocd" {
-  depends_on = [ module.nfs-storage ]
+  depends_on = [ time_sleep.wait_20_seconds_before_phase_4, module.nfs-storage ]
   source = "./modules/argocd"
   rollouts_external_ip = var.rollouts_external_ip
   argocd_external_ip = var.argocd_external_ip
 }
 
-# Phase 4
+resource "time_sleep" "wait_20_seconds_before_phase_5" {
+  depends_on = [ time_sleep.wait_20_seconds_before_phase_4 ]
+  create_duration = "30s"
+}
 
+# Phase 5
 resource "null_resource" "create_overlays_dir" {
+  depends_on = [ time_sleep.wait_20_seconds_before_phase_5 ]
   provisioner "local-exec" {
     command = "mkdir -p ${local.overlays_dir}"
   }
 }
 
 module "go-counter-backend" {
-  depends_on = [ null_resource.create_overlays_dir, module.nfs-storage ]
+  depends_on = [ null_resource.create_overlays_dir, module.nfs-storage, time_sleep.wait_20_seconds_before_phase_5 ]
   source = "./modules/go-counter-backend"
   external_ip = var.counter_producer_external_ip
   overlays_dir = local.overlays_dir
 }
 
 module "cron" {
-  depends_on = [ null_resource.create_overlays_dir ]
+  depends_on = [ null_resource.create_overlays_dir, time_sleep.wait_20_seconds_before_phase_5 ]
   source = "./modules/cron"
   overlays_dir = local.overlays_dir
 }
 
 module "mqtt" {
-  depends_on = [ null_resource.create_overlays_dir, module.nfs-storage ]
+  depends_on = [ null_resource.create_overlays_dir, module.nfs-storage, time_sleep.wait_20_seconds_before_phase_5 ]
   source = "./modules/mqtt"
   external_ip = var.mqtt_external_ip
   overlays_dir = local.overlays_dir
 }
 
 module "portainer-agent" {
-  depends_on = [ null_resource.create_overlays_dir ]
+  depends_on = [ null_resource.create_overlays_dir, time_sleep.wait_20_seconds_before_phase_5 ]
   source = "./modules/portainer-agent"
   external_ip = var.portainer_agent_external_ip
   overlays_dir = local.overlays_dir
 }
 
 module "node-red" {
-  depends_on = [ null_resource.create_overlays_dir, module.nfs-storage ]
+  depends_on = [ null_resource.create_overlays_dir, module.nfs-storage, time_sleep.wait_20_seconds_before_phase_5 ]
   source = "./modules/node-red"
   external_ip = var.node_red_external_ip
   overlays_dir = local.overlays_dir
 }
 
 module "speedtest" {
-  depends_on = [ null_resource.create_overlays_dir ]
+  depends_on = [ null_resource.create_overlays_dir, time_sleep.wait_20_seconds_before_phase_5 ]
   source = "./modules/speedtest"
 }
 
 resource "local_file" "kustomization" {
-  depends_on = [ 
+  depends_on = [
+    time_sleep.wait_20_seconds_before_phase_5, 
     module.go-counter-backend, 
     module.cron,
     module.mqtt,

@@ -10,6 +10,7 @@ resource "kubernetes_namespace_v1" "influxdb" {
 }
 
 resource "kubernetes_secret_v1" "influxdb_auth" {
+  depends_on = [ kubernetes_namespace_v1.influxdb ]
   metadata {
     name      = "influxdb-auth"
     namespace = local.namespace
@@ -19,6 +20,7 @@ resource "kubernetes_secret_v1" "influxdb_auth" {
 }
 
 resource "kubernetes_secret_v1" "docker_registry" {
+  depends_on = [ kubernetes_namespace_v1.influxdb ]
   metadata {
     name      = "${local.namespace}-registry-credentials"
     namespace = local.namespace
@@ -32,6 +34,7 @@ resource "kubernetes_secret_v1" "docker_registry" {
 }
 
 resource "helm_release" "influxdb" {
+  depends_on = [ kubernetes_secret_v1.influxdb_auth, kubernetes_secret_v1.docker_registry ]
   name       = "influxdb"
   repository = "https://helm.influxdata.com/"
   chart      = "influxdb2"

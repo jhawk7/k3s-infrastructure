@@ -13,6 +13,7 @@ resource "kubernetes_namespace_v1" "prometheus" {
 
 # create docker registry secrets in each namespace
 resource "kubernetes_secret_v1" "docker_registry" {
+  depends_on = [ kubernetes_namespace_v1.prometheus ]
   metadata {
     name      = "${local.namespace}-registry-credentials"
     namespace = local.namespace
@@ -28,6 +29,7 @@ resource "kubernetes_secret_v1" "docker_registry" {
 
 
 resource "helm_release" "prometheus" {
+  depends_on = [ kubernetes_secret_v1.docker_registry ]
   name       = "prometheus"
   chart = "oci://ghcr.io/prometheus-community/charts/prometheus"
   namespace  = local.namespace
@@ -94,17 +96,3 @@ locals {
         - targets: ['${local.opentel_svc}:8889', '${local.opentel_svc}:8888']
   EOT
 }
-
-# output "kustomization_fragment" {
-#   value = {
-   
-#     secretGenerator = [
-#       {
-#         name = "${local.namespace}-registry-credentials",
-#         namespace = local.namespace,
-#         files = [".dockerconfigjson=env_files/.docker-config.json"],
-#         type = "kubernetes.io/dockerconfigjson"
-#       }
-#     ]
-#   }
-# }

@@ -12,6 +12,7 @@ resource "kubernetes_namespace_v1" "nfs_csi_provisioner" {
 }
 
 resource "kubernetes_secret_v1" "docker_registry" {
+  depends_on = [ kubernetes_namespace_v1.nfs_csi_provisioner ]
   metadata {
     name      = "${local.namespace}-registry-credentials"
     namespace = local.namespace
@@ -24,6 +25,7 @@ resource "kubernetes_secret_v1" "docker_registry" {
   }
 }
 resource "helm_release" "csi_driver_nfs" {
+  depends_on = [ kubernetes_secret_v1.docker_registry ]
   name       = "csi-driver-nfs"
   repository = "https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts"
   chart      = "csi-driver-nfs"

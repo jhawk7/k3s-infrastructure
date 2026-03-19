@@ -11,6 +11,7 @@ resource "kubernetes_namespace_v1" "argocd" {
 }
 
 resource "kubernetes_secret_v1" "docker_registry" {
+  depends_on = [ kubernetes_namespace_v1.argocd ]
   metadata {
     name      = "${local.namespace}-registry-credentials"
     namespace = local.namespace
@@ -25,6 +26,7 @@ resource "kubernetes_secret_v1" "docker_registry" {
 
 # 1. Install Argo CD
 resource "helm_release" "argocd" {
+  depends_on = [ kubernetes_secret_v1.docker_registry]
   name             = "argocd"
   repository       = local.argo_repo
   chart            = "argo-cd"
@@ -53,6 +55,7 @@ resource "helm_release" "argocd" {
 
 # 2. Install Argo Rollouts (Progressive Delivery Controller)
 resource "helm_release" "argo_rollouts" {
+  depends_on = [helm_release.argocd, kubernetes_secret_v1.docker_registry] # Ensure Argo CD is installed first
   name             = "argo-rollouts"
   repository       = local.argo_repo
   chart            = "argo-rollouts"
@@ -73,12 +76,11 @@ resource "helm_release" "argo_rollouts" {
       ]
     })
   ]
-
-  depends_on = [helm_release.argocd] # Ensure Argo CD is installed first
 }
 
 # 3. Install Argo CD Image Updater
 resource "helm_release" "argocd_image_updater" {
+  depends_on = [helm_release.argocd, kubernetes_secret_v1.docker_registry] # Ensure Argo CD is installed first
   name       = "argocd-image-updater"
   repository = local.argo_repo
   chart      = "argocd-image-updater"
@@ -111,6 +113,4 @@ resource "helm_release" "argocd_image_updater" {
       }
     })
   ]
-
-  depends_on = [helm_release.argocd]
 }

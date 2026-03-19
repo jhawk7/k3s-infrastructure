@@ -38,6 +38,7 @@ resource "kubernetes_secret_v1" "docker_registry" {
 }
 
 resource "helm_release" "grafana" {
+  depends_on = [ kubernetes_secret_v1.docker_registry, kubernetes_secret_v1.grafana_creds ]
 	name       = "grafana"
 	chart = "oci://ghcr.io/grafana-community/helm-charts/grafana"
 	namespace  = local.namespace
@@ -184,24 +185,4 @@ resource "helm_release" "grafana" {
     })
   ]
 }
-
-# output "kustomization_fragment" {
-#   value = {
-#     secretGenerator = [
-#       {
-#         name = "${local.namespace}-registry-credentials"
-#         namespace = local.namespace
-#         files = [".dockerconfigjson=env_files/.docker-config.json"]
-#         type = "kubernetes.io/dockerconfigjson"
-#       },
-#       {
-#         name = "grafana-admin-credentials"
-#         namespace = local.namespace
-#         envs = ["env_files/grafana-creds.env"]
-#         type = "Opaque"
-#       }
-#     ]
-#   }
-# }
-
 
