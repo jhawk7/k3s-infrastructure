@@ -26,7 +26,7 @@ spec:
         kubernetes.io/arch: arm64
       containers:
       - name: av-parser-web
-        image: jhawk7/av-parser-web@sha256:682d7a2bd8edd03805447d878752b3b056cec4b9016839ad14369cd7e8128483
+        image: jhawk7/av-parser-web@sha256:0334215cd9e97dfbd45e6b70ababffdbf89a81f7abdc618be2a705af88c8144b
         ports:
         - containerPort: 8080
         envFrom:
