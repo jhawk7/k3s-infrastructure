@@ -9,7 +9,8 @@ locals {
     module.mqtt.kustomization_fragment,
     module.portainer-agent.kustomization_fragment,
     module.node-red.kustomization_fragment,
-    module.speedtest.kustomization_fragment
+    module.speedtest.kustomization_fragment,
+    module.apps.kustomization_fragment
   ]
 }
 
@@ -159,6 +160,13 @@ module "speedtest" {
   source = "./modules/speedtest"
 }
 
+module "apps" {
+  depends_on = [ null_resource.create_overlays_dir, time_sleep.wait_20_seconds_before_phase_5 ]
+  source = "./modules/apps"
+  overlays_dir = local.overlays_dir
+  av_parser_external_ip = var.av_parser_external_ip
+}
+
 resource "local_file" "kustomization" {
   depends_on = [
     time_sleep.wait_20_seconds_before_phase_5, 
@@ -167,7 +175,8 @@ resource "local_file" "kustomization" {
     module.mqtt,
     module.portainer-agent,
     module.node-red,
-    module.speedtest
+    module.speedtest,
+    module.apps
   ]
 
   filename = "${local.overlays_dir}/kustomization.yaml"

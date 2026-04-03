@@ -102,3 +102,8 @@ variable "node_red_external_ip" {
   type      = string
   sensitive = true  
 }
+
+variable "av_parser_external_ip" {
+  type      = string
+  sensitive = true  
+}

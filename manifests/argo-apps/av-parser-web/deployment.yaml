@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: av-parser-web
+  namespace: apps
+  labels:
+    app: av-parser-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: av-parser-web
+  template:
+    metadata:
+      labels:
+        app: av-parser-web
+    spec:
+      securityContext:
+        runAsUser: 101
+        runAsGroup: 101
+        fsGroup: 101
+      imagePullSecrets:
+      - name: apps-registry-credentials
+      nodeSelector:
+        type: agent
+        kubernetes.io/arch: arm64
+      containers:
+      - name: av-parser-web
+        image: jhawk7/av-parser-web@sha256:682d7a2bd8edd03805447d878752b3b056cec4b9016839ad14369cd7e8128483
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - secretRef:
+            name: av-parser-web-secret
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
