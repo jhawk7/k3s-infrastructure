@@ -8,21 +8,21 @@ resource "kubernetes_namespace_v1" "apps" {
   }
 }
 
-resource "local_file" "av_parser_argo_patch" {
-  content = yamlencode([
-    {
-      op = "replace"
-      path = "/spec/source/kustomize/patches/0/patch"
-      value = <<-EOT
-      - op: "replace"
-        path: "/spec/loadBalancerIP"
-        value: "${var.av_parser_external_ip}"
-      EOT
-    }
-  ])
+# resource "local_file" "av_parser_argo_patch" {
+#   content = yamlencode([
+#     {
+#       op = "replace"
+#       path = "/spec/source/kustomize/patches/0/patch"
+#       value = <<-EOT
+#       - op: "replace"
+#         path: "/spec/loadBalancerIP"
+#         value: "${var.av_parser_external_ip}"
+#       EOT
+#     }
+#   ])
 
-  filename = "${var.overlays_dir}/av-parser-argo-patch.yaml"
-}
+#   filename = "${var.overlays_dir}/av-parser-argo-patch.yaml"
+# }
 
 output "kustomization_fragment" {
   value = {
