@@ -27,13 +27,6 @@ resource "kubernetes_namespace_v1" "apps" {
 output "kustomization_fragment" {
   value = {
     patches = [
-      {
-        target = {
-          kind = "Application"
-          name = "av-parser-web"
-        }
-        path = "av-parser-argo-patch.yaml"
-      }
     ]
 
     secretGenerator = [

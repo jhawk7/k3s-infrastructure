@@ -94,5 +94,9 @@ locals {
       scrape_interval: 10s
       static_configs:
         - targets: ['${local.opentel_svc}:8889', '${local.opentel_svc}:8888']
+    - job_name: 'avparser'
+      scrape_interval: 10s
+      static_configs:
+        - targets: ['${var.av_parser_ip}:9100']
   EOT
 }
