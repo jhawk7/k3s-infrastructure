@@ -43,6 +43,13 @@ resource "local_file" "go_bills_api_argo_patch" {
 output "kustomization_fragment" {
   value = {
     patches = [
+      {
+        target = {
+          kind = "Application"
+          name = "go-bills-api"
+        }
+        path = "go-bills-api-argo-patch.yaml"
+      }
     ]
 
     secretGenerator = [
