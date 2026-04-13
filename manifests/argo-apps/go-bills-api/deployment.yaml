@@ -26,7 +26,7 @@ spec:
         kubernetes.io/arch: arm64
       containers:
       - name: go-bills-api
-        image: jhawk7/go-bills-api@sha256:0334215cd9e97dfbd45e6b70ababffdbf89a81f7abdc618be2a705af88c8144b
+        image: jhawk7/go-bills-api@sha256:344a77bf600f47a5bc4818652dc3d23c865d35beab47344a0803586eef588081
         ports:
         - containerPort: 8080
         envFrom:
