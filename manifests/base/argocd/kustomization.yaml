@@ -7,3 +7,4 @@ resources:
 - dotnetapi.argocd.yaml
 - imageUpdater.yaml
 #- av-parser-web.argocd.yaml
+- go-bills-api.argocd.yaml
