@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-bills-api
+  namespace: apps
+  labels:
+    app: go-bills-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: go-bills-api
+  template:
+    metadata:
+      labels:
+        app: go-bills-api
+    spec:
+      securityContext:
+        runAsUser: 101
+        runAsGroup: 101
+        fsGroup: 101
+      imagePullSecrets:
+      - name: apps-registry-credentials
+      nodeSelector:
+        type: agent
+        kubernetes.io/arch: arm64
+      containers:
+      - name: go-bills-api
+        image: jhawk7/go-bills-api@sha256:0334215cd9e97dfbd45e6b70ababffdbf89a81f7abdc618be2a705af88c8144b
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - secretRef:
+            name: go-bills-api-secret
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10

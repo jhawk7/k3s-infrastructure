@@ -166,6 +166,7 @@ module "apps" {
   source = "./modules/apps"
   overlays_dir = local.overlays_dir
   av_parser_external_ip = var.av_parser_external_ip
+  go_bills_parser_external_ip = var.go_bills_parser_external_ip
 }
 
 resource "local_file" "kustomization" {

@@ -24,6 +24,22 @@ resource "kubernetes_namespace_v1" "apps" {
 #   filename = "${var.overlays_dir}/av-parser-argo-patch.yaml"
 # }
 
+resource "local_file" "go_bills_api_argo_patch" {
+  content = yamlencode([
+    {
+      op = "replace"
+      path = "/spec/source/kustomize/patches/0/patch"
+      value = <<-EOT
+      - op: "replace"
+        path: "/spec/loadBalancerIP"
+        value: "${var.go_bills_parser_external_ip}"
+      EOT
+    }
+  ])
+
+  filename = "${var.overlays_dir}/go-bills-api-argo-patch.yaml"
+}
+
 output "kustomization_fragment" {
   value = {
     patches = [
@@ -34,6 +50,12 @@ output "kustomization_fragment" {
         name = "av-parser-web-secret"
         namespace = local.namespace
         envs = ["env_files/av-parser-web.env"]
+        type = "Opaque"
+      },
+      {
+        name = "go-bills-api-secret",
+        namespace = local.namespace,
+        envs = ["env_files/go-bills-api.env"],
         type = "Opaque"
       },
       {

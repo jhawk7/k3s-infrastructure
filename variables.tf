@@ -107,3 +107,8 @@ variable "av_parser_external_ip" {
   type      = string
   sensitive = true  
 }
+
+variable "go_bills_parser_external_ip" {
+  type      = string
+  sensitive = true  
+}
