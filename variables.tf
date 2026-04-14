@@ -73,12 +73,7 @@ variable "grafana_external_ip" {
   sensitive = true  
 }
 
-variable "grafana_influxdb_bills_token" {
-  type = string
-  sensitive = true
-}
-
-variable "grafana_influxdb_proxmox_token" {
+variable "grafana_influxdb_token" {
   type = string
   sensitive = true
 }

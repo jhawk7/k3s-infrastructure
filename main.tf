@@ -80,8 +80,7 @@ module "grafana" {
   external_ip = var.grafana_external_ip
   influxdb_admin_user = var.influxdb_admin_user
   influxdb_admin_password = var.influxdb_admin_password
-  influxdb_bills_token = var.grafana_influxdb_bills_token
-  influxdb_proxmox_token = var.grafana_influxdb_proxmox_token
+  grafana_influxdb_token = var.grafana_influxdb_token
 }
 
 resource "time_sleep" "wait_20_seconds_before_phase_4" {

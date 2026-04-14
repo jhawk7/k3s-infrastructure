@@ -87,7 +87,7 @@ resource "helm_release" "grafana" {
               basicAuthUser = var.influxdb_admin_user
               secureJsonData = {
                 basicAuthPassword = var.influxdb_admin_password
-                token = var.influxdb_bills_token
+                token = var.grafana_influxdb_token
               }
               jsonData = {
                 version = "Flux"
@@ -105,7 +105,7 @@ resource "helm_release" "grafana" {
               basicAuthUser = var.influxdb_admin_user
               secureJsonData = {
                 basicAuthPassword = var.influxdb_admin_password
-                token = var.influxdb_proxmox_token
+                token = var.grafana_influxdb_token
               }
               jsonData = {
                 version = "Flux"

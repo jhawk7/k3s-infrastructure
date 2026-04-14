@@ -13,12 +13,7 @@ variable "influxdb_admin_password" {
   type = string
 }
 
-variable "influxdb_bills_token" {
-  type = string
-  sensitive = true
-}
-
-variable "influxdb_proxmox_token" {
+variable "grafana_influxdb_token" {
   type = string
   sensitive = true
 }
