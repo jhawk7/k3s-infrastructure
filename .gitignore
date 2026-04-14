@@ -22,3 +22,5 @@ manifests/overlays/*.yaml
 
 #grafana dashboards
 grafana-dashboards/
+
+*.zip
