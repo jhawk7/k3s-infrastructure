@@ -6,5 +6,5 @@ resources:
 - go-counter-backend.argocd.yaml
 - dotnetapi.argocd.yaml
 #- imageUpdater.yaml
-- av-parser-web.argocd.yaml
+#- av-parser-web.argocd.yaml
 - go-bills-api.argocd.yaml
