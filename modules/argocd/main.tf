@@ -107,7 +107,7 @@ resource "helm_release" "argocd_image_updater" {
             api_url = "https://registry-1.docker.io"
             default = true
             insecure = false
-            credentials = "pullsecret:${local.namespace}-registry-credentials"
+            credentials = "pullsecret:${local.namespace}/${local.namespace}-registry-credentials"
           }
         ]
       }
