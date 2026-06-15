@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
   annotations:
     # Enable argocd-image-updater for this application
-    argocd-image-updater.argoproj.io/image-list: app=jhawk7/av-parser-web:latest
+    argocd-image-updater.argoproj.io/image-list: app=jhawk7/av-parser-web:arm64
     # Use digest update strategy to track image by digest
     argocd-image-updater.argoproj.io/app.update-strategy: digest
     # Allow tracking of 'latest' tag (or specify a pattern like 'regexp:^v.*')

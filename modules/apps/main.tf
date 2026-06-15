@@ -49,6 +49,13 @@ output "kustomization_fragment" {
           name = "go-bills-api"
         }
         path = "go-bills-api-argo-patch.yaml"
+      },
+      {
+        target = {
+          kind = "Application"
+          name = "av-parser-web"
+        }
+        path = "av-parser-argo-patch.yaml"
       }
     ]
 
