@@ -22,8 +22,3 @@ variable "vnas_ip" {
   type      = string
   sensitive = true
 }
-
-variable "av_parser_ip" {
-  type      = string
-  sensitive = true
-}
