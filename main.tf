@@ -66,7 +66,8 @@ resource "time_sleep" "wait_30_seconds_before_phase_3" {
 module "prometheus" {
   depends_on = [ time_sleep.wait_30_seconds_before_phase_3, module.nfs-storage ]
   source = "./modules/prometheus"
-  external_ip = var.prom_external_ip
+  prom_external_ip = var.prom_external_ip
+  pushgateway_external_ip = var.pushgateway_external_ip
   node5_ip = var.node5_ip
   node6_ip = var.node6_ip
   vnas_ip = var.vnas_ip

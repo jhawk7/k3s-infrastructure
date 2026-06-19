@@ -48,13 +48,23 @@ resource "helm_release" "prometheus" {
         retention = "15d"
         service = {
           type = "LoadBalancer"
-          loadBalancerIP = var.external_ip
+          loadBalancerIP = var.prom_external_ip
         }
       }
       alertmanager = {
         enabled = false
       }
       extraScrapeConfigs = local.extraScrapeConfigs
+      prometheus-pushgateway = {
+        imagePullSecrets = [
+          { name = "${local.namespace}-registry-credentials" }
+        ]
+        enabled = true
+        service = {
+          type = "LoadBalancer"
+          loadBalancerIP = var.pushgateway_external_ip
+        }
+      }
     })
   ]
 
