@@ -86,6 +86,8 @@ spec:
           env:
             - name: DOZZLE_MODE
               value: "k8s"
+            - name: DOZZLE_REMOTE_AGENT
+              value: #remote agents patched via kustomize
           volumeMounts:
             - name: data
               mountPath: /data

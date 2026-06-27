@@ -93,6 +93,11 @@ variable "dozzle_external_ip" {
   sensitive = true
 }
 
+variable "dozzle_remote_agents" {
+  type      = string
+  sensitive = true  
+}
+
 variable "rollouts_external_ip" {
   type      = string
   sensitive = true  

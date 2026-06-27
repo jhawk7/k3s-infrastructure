@@ -166,6 +166,7 @@ module "dozzle" {
   source = "./modules/dozzle"
   dozzle_external_ip = var.dozzle_external_ip
   overlays_dir = local.overlays_dir
+  dozzle_remote_agents = var.dozzle_remote_agents
 }
 
 module "apps" {
