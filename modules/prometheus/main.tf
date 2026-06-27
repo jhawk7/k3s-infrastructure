@@ -50,6 +50,9 @@ resource "helm_release" "prometheus" {
           type = "LoadBalancer"
           loadBalancerIP = var.prom_external_ip
         }
+        extraArgs = {
+          "web.enable-remote-write-receiver" = ""
+        }
       }
       alertmanager = {
         enabled = false
