@@ -9,5 +9,6 @@ resources:
 - speedtest
 - mqtt-service
 - argocd
+- dozzle
 - portainer-agent
 - node-red

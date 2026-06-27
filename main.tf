@@ -10,6 +10,7 @@ locals {
     module.portainer-agent.kustomization_fragment,
     module.node-red.kustomization_fragment,
     module.speedtest.kustomization_fragment,
+    module.dozzle.kustomization_fragment,
     module.apps.kustomization_fragment
   ]
 }
@@ -158,6 +159,13 @@ module "node-red" {
 module "speedtest" {
   depends_on = [ null_resource.create_overlays_dir, time_sleep.wait_20_seconds_before_phase_5 ]
   source = "./modules/speedtest"
+}
+
+module "dozzle" {
+  depends_on = [ null_resource.create_overlays_dir, time_sleep.wait_20_seconds_before_phase_5 ]
+  source = "./modules/dozzle"
+  dozzle_external_ip = var.dozzle_external_ip
+  overlays_dir = local.overlays_dir
 }
 
 module "apps" {
