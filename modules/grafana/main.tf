@@ -182,6 +182,11 @@ resource "helm_release" "grafana" {
           } 
         }
       }
+      env = {
+        GF_AUTH_ANONYMOUS_ENABLED = "true"
+        GF_AUTH_ANONYMOUS_ORG_ROLE = "Viewer"
+        GF_SECURITY_ALLOW_EMBEDDING = "true"
+      }
     })
   ]
 }
