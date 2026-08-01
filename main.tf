@@ -73,6 +73,7 @@ module "prometheus" {
   node6_ip = var.node6_ip
   vnas_ip = var.vnas_ip
   vnode_ip = var.vnode_ip
+  vnode2_ip = var.vnode2_ip
 }
 
 module "grafana" {

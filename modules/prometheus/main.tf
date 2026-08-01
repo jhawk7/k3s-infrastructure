@@ -83,6 +83,9 @@ locals {
     - job_name: 'vnode'
       static_configs:
         - targets: ['${var.vnode_ip}:9100']
+    - job_name: 'vnode2'
+      static_configs:
+        - targets: ['${var.vnode2_ip}:9100']
     - job_name: 'vnas'
       static_configs:
         - targets: ['${var.vnas_ip}:9100']

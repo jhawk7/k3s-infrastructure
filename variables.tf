@@ -48,6 +48,11 @@ variable "vnode_ip" {
   sensitive = true
 }
 
+variable "vnode2_ip" {
+  type      = string
+  sensitive = true
+}
+
 variable "vnas_ip" {
   type      = string
   sensitive = true
