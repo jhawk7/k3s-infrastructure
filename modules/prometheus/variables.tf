@@ -28,7 +28,7 @@ variable "vnode2_ip" {
   sensitive = true
 }
 
-variable "vnas_ip" {
+variable "znas_ip" {
   type      = string
   sensitive = true
 }

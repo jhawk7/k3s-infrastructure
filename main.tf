@@ -71,7 +71,7 @@ module "prometheus" {
   pushgateway_external_ip = var.pushgateway_external_ip
   node5_ip = var.node5_ip
   node6_ip = var.node6_ip
-  vnas_ip = var.vnas_ip
+  znas_ip = var.znas_ip
   vnode_ip = var.vnode_ip
   vnode2_ip = var.vnode2_ip
 }

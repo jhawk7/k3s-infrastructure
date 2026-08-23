@@ -86,9 +86,9 @@ locals {
     - job_name: 'vnode2'
       static_configs:
         - targets: ['${var.vnode2_ip}:9100']
-    - job_name: 'vnas'
+    - job_name: 'znas'
       static_configs:
-        - targets: ['${var.vnas_ip}:9100']
+        - targets: ['${var.znas_ip}:9100']
     - job_name: 'pihole'
       static_configs:
         - targets: ['${var.node6_ip}:9617']  
@@ -96,7 +96,7 @@ locals {
       metrics_path: metrics
       scrape_interval: 10s
       static_configs:
-        - targets: ['${var.vnas_ip}:9922']
+        - targets: ['${var.znas_ip}:9922']
     - job_name: 'mqtt-exp'
       scrape_interval: 10s
       static_configs:
