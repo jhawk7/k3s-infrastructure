@@ -110,5 +110,8 @@ locals {
       scrape_interval: 10s
       static_configs:
         - targets: ['${local.opentel_svc}:8889', '${local.opentel_svc}:8888']
+    - job_name: technitium
+      static_configs:
+        - targets: ['${var.node6_ip}:9105']
   EOT
 }
